@@ -1,13 +1,27 @@
 # Risk of Rain 2 - Starting Items GUI
 
+### TL:DR
+This mod will allow players to use a GUI to select which items will be given to them at the start of a run. There are 4 modes: *Free*, *Earnt Persistent*, *Earnt Consumable* and *Random*. Works in both singleplayer and multiplayer (if the host and the client have the mod installed, enabled and are using the same mode. NOTE: Each client has to select their own items).
+
+### How-To
+
+```
+git clone https://github.com/szymonj99/StartingItemsGUI
+cd StartingItemsGUI/Development
+dotnet restore
+dotnet build StartingItemsGUI.csproj -a x64 --nologo
+```
+
+Make sure you have `MMHOOK_RoR2.dll` (install `HookGenPatcher` from R2ModMan) installed.
+
+Then copy `StartingItemsGUI.dll` from `Development/Build/{Release/Debug}` to the location of your BepInEx plugin folder. You can overwrite the outdated DLL file with this one.
+
 ### License
-This repository is licensed under the included (GNU GPLv3) license.
+This repository is licensed under the included [GNU GPLv3](LICENSE.txt) license.
 
 ### Distribution
 This mod will be compiled soon (tm).
 
-### TL:DR
-This mod will allow players to use a GUI to select which items will be given to them at the start of a run. There are 4 modes: *Free*, *Earnt Persistent*, *Earnt Consumable* and *Random*. Works in both singleplayer and multiplayer (if the host and the client have the mod installed, enabled and are using the same mode. NOTE: Each client has to select their own items).
 
 ### INSPIRATION
 This mod was inspired by features in other roguelike games such as *Undermine*, *Dungreed* and *Dead Cells*. The goal was to give a returning player a sense of progression, to give them a boost to make them more formidable the more they play.
