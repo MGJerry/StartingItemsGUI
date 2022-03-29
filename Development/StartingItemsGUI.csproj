@@ -28,6 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Resources\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="MMHOOK_RoR2">
       <HintPath>Dependencies\MMHOOK_RoR2.dll</HintPath>
     </Reference>
