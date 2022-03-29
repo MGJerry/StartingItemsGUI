@@ -429,11 +429,15 @@ namespace Phedg1Studios {
                             return true;
                         }
                     }
-                } else if (allEquipmentIDs.ContainsKey(itemID)) {
-                    if (RoR2.EquipmentCatalog.GetEquipmentDef(allEquipmentIDs[itemID]).pickupIconSprite != null && RoR2.EquipmentCatalog.GetEquipmentDef(allEquipmentIDs[itemID]).pickupIconSprite.name != "texNullIcon") {
+                }
+                else if (allEquipmentIDs.ContainsKey(itemID))
+                {
+                    if (RoR2.EquipmentCatalog.GetEquipmentDef(allEquipmentIDs[itemID]).pickupIconSprite != null && RoR2.EquipmentCatalog.GetEquipmentDef(allEquipmentIDs[itemID]).pickupIconSprite.name != "texNullIcon")
+                    {
                         return true;
                     }
                 }
+
                 return false;
             }
 
@@ -450,7 +454,7 @@ namespace Phedg1Studios {
                     return true;
                 }
 
-                var user = RoR2.UserProfile.defaultProfile;
+                var user = RoR2.PlatformSystems.saveSystem.GetProfile(userProfile);
 
                 if (allItemIDs.ContainsKey(itemID))
                 {

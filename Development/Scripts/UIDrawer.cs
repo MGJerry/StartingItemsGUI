@@ -140,7 +140,7 @@ namespace Phedg1Studios {
                             Data.SetMode(mode);
                             SelectModeButton();
                             SetInstructionsText();
-                            DrawRecentPanel();
+                            //DrawRecentPanel();
                         });
                         shopInterfaces.Add(button);
                         modesPresent += 1;
@@ -283,6 +283,8 @@ namespace Phedg1Studios {
                     Data.bossItems,
                     RoR2.ItemCatalog.lunarItemList
                 };
+                var itemCount = RoR2.ItemCatalog.tier1ItemList.Count + RoR2.ItemCatalog.tier2ItemList.Count + RoR2.ItemCatalog.tier3ItemList.Count + Data.bossItems.Count + RoR2.ItemCatalog.lunarItemList.Count;
+                Log.LogInfo($"Item count: {itemCount}");
 
                 var allEquipmentLists = new List<List<EquipmentIndex>>
                 {
@@ -290,6 +292,8 @@ namespace Phedg1Studios {
                     Data.lunarEquipment,
                     Data.eliteEquipment
                 };
+                var equipmentCount = RoR2.EquipmentCatalog.equipmentList.Count + Data.lunarEquipment.Count + Data.eliteEquipment.Count;
+                Log.LogInfo($"Equipment count: {equipmentCount}");
 
                 var storeItems = new List<int>();
 
@@ -318,63 +322,63 @@ namespace Phedg1Studios {
                 return storeItems;
             }
 
-            static void DrawRecentPanel() {
-                if ((Data.mode == DataEarntConsumable.mode && DataEarntConsumable.userPointsRecent > 0) || (Data.mode == DataEarntPersistent.mode && DataEarntPersistent.userPointsRecent > 0)) {
-                    Transform background = ElementCreator.SpawnImageOffset(new List<Image>(), UIDrawer.rootTransform.transform.parent.gameObject, null, new Color(0, 0, 0, 0.95f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero).transform;
-                    background.GetComponent<Image>().raycastTarget = true;
+            //static void DrawRecentPanel() {
+            //    if ((Data.mode == DataEarntConsumable.mode && DataEarntConsumable.userPointsRecent > 0) || (Data.mode == DataEarntPersistent.mode && DataEarntPersistent.userPointsRecent > 0)) {
+            //        Transform background = ElementCreator.SpawnImageOffset(new List<Image>(), UIDrawer.rootTransform.transform.parent.gameObject, null, new Color(0, 0, 0, 0.95f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero).transform;
+            //        background.GetComponent<Image>().raycastTarget = true;
 
-                    GameObject panelOutline = PanelCreator.CreatePanelSize(background);
-                    RectTransform panelTransform = panelOutline.GetComponent<RectTransform>();
-                    float panelWidth = 600 + UIConfig.panelPadding * 2 + 10;
-                    float panelHeight = 350 + UIConfig.panelPadding * 2 + 10;
-                    panelTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, panelWidth);
-                    panelTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, panelHeight);
-                    panelTransform.localPosition = new Vector3(-panelWidth / 2f, panelHeight / 2f, 0);
-                    RectTransform panelChildTransform = panelTransform.GetChild(0).GetComponent<RectTransform>();
+            //        GameObject panelOutline = PanelCreator.CreatePanelSize(background);
+            //        RectTransform panelTransform = panelOutline.GetComponent<RectTransform>();
+            //        float panelWidth = 600 + UIConfig.panelPadding * 2 + 10;
+            //        float panelHeight = 350 + UIConfig.panelPadding * 2 + 10;
+            //        panelTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, panelWidth);
+            //        panelTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, panelHeight);
+            //        panelTransform.localPosition = new Vector3(-panelWidth / 2f, panelHeight / 2f, 0);
+            //        RectTransform panelChildTransform = panelTransform.GetChild(0).GetComponent<RectTransform>();
 
-                    List<TMPro.TextMeshProUGUI> text = new List<TMPro.TextMeshProUGUI>();
-                    ElementCreator.SpawnTextOffset(text, panelTransform.GetChild(0).gameObject, new Color(1, 1, 1), 24, 0, new Vector2(UIConfig.spacingHorizontal, UIConfig.spacingVertical + UIConfig.blackButtonHeight + UIConfig.spacingVertical + UIConfig.blueButtonHeight + UIConfig.spacingVertical), new Vector2(-UIConfig.spacingHorizontal, -UIConfig.spacingVertical));
-                    text[0].text = "THANK YOU";
-                    text[0].text += "\nFor your (or your kinsman's) continued service. Working to the benefit of UES is working to the benefit of us all.";
-                    text[0].text += "\n";
-                    text[0].text += "\nYour UES Credit balance has been increased by the following amount:";
+            //        List<TMPro.TextMeshProUGUI> text = new List<TMPro.TextMeshProUGUI>();
+            //        ElementCreator.SpawnTextOffset(text, panelTransform.GetChild(0).gameObject, new Color(1, 1, 1), 24, 0, new Vector2(UIConfig.spacingHorizontal, UIConfig.spacingVertical + UIConfig.blackButtonHeight + UIConfig.spacingVertical + UIConfig.blueButtonHeight + UIConfig.spacingVertical), new Vector2(-UIConfig.spacingHorizontal, -UIConfig.spacingVertical));
+            //        text[0].text = "THANK YOU";
+            //        text[0].text += "\nFor your (or your kinsman's) continued service. Working to the benefit of UES is working to the benefit of us all.";
+            //        text[0].text += "\n";
+            //        text[0].text += "\nYour UES Credit balance has been increased by the following amount:";
 
-                    List<TMPro.TextMeshProUGUI> creditsText = new List<TMPro.TextMeshProUGUI>();
-                    ElementCreator.SpawnTextSize(creditsText, panelChildTransform.gameObject, new Color(1, 1, 1, 1), 40, 0, new Vector2(0.5f, 1), new Vector2(300, UIConfig.blueButtonHeight - UIConfig.panelPadding * 2), new Vector3(panelChildTransform.rect.width / 2f, -panelChildTransform.rect.height + UIConfig.spacingVertical + UIConfig.blackButtonHeight + UIConfig.spacingVertical + UIConfig.blueButtonHeight, 0));
-                    creditsText[0].text = "";
-                    if (Data.mode == DataEarntConsumable.mode) {
-                        creditsText[0].text = DataEarntConsumable.userPointsRecent.ToString();
-                    } else if (Data.mode == DataEarntPersistent.mode) {
-                        creditsText[0].text = DataEarntPersistent.userPointsRecent.ToString();
-                    }
+            //        List<TMPro.TextMeshProUGUI> creditsText = new List<TMPro.TextMeshProUGUI>();
+            //        ElementCreator.SpawnTextSize(creditsText, panelChildTransform.gameObject, new Color(1, 1, 1, 1), 40, 0, new Vector2(0.5f, 1), new Vector2(300, UIConfig.blueButtonHeight - UIConfig.panelPadding * 2), new Vector3(panelChildTransform.rect.width / 2f, -panelChildTransform.rect.height + UIConfig.spacingVertical + UIConfig.blackButtonHeight + UIConfig.spacingVertical + UIConfig.blueButtonHeight, 0));
+            //        creditsText[0].text = "";
+            //        if (Data.mode == DataEarntConsumable.mode) {
+            //            creditsText[0].text = DataEarntConsumable.userPointsRecent.ToString();
+            //        } else if (Data.mode == DataEarntPersistent.mode) {
+            //            creditsText[0].text = DataEarntPersistent.userPointsRecent.ToString();
+            //        }
 
-                    GameObject backButton = ButtonCreator.SpawnBlackButton(panelChildTransform.gameObject, new Vector2(UIConfig.blackButtonWidth, UIConfig.blackButtonHeight), "Back", new List<TMPro.TextMeshProUGUI>());
-                    RectTransform backButtonTransform = backButton.transform.parent.GetComponent<RectTransform>();
-                    backButtonTransform.localPosition = new Vector3(panelChildTransform.rect.width / 2f - UIConfig.blackButtonWidth / 2f, -panelHeight + UIConfig.spacingVertical + UIConfig.blackButtonHeight, backButtonTransform.localPosition.z);
+            //        GameObject backButton = ButtonCreator.SpawnBlackButton(panelChildTransform.gameObject, new Vector2(UIConfig.blackButtonWidth, UIConfig.blackButtonHeight), "Back", new List<TMPro.TextMeshProUGUI>());
+            //        RectTransform backButtonTransform = backButton.transform.parent.GetComponent<RectTransform>();
+            //        backButtonTransform.localPosition = new Vector3(panelChildTransform.rect.width / 2f - UIConfig.blackButtonWidth / 2f, -panelHeight + UIConfig.spacingVertical + UIConfig.blackButtonHeight, backButtonTransform.localPosition.z);
 
-                    RoR2.UI.HGButton previousSelectable = backButton.GetComponent<RoR2.UI.MPEventSystemLocator>().eventSystem.currentSelectedGameObject.GetComponent<RoR2.UI.HGButton>();
-                    Button backButtonButton = backButton.GetComponent<RoR2.UI.HGButton>();
-                    backButtonButton.onClick.AddListener(() => {
-                        UIDrawer.rootTransform.GetComponent<CanvasGroup>().interactable = true;
-                        if (backButtonButton.GetComponent<RoR2.UI.MPEventSystemLocator>().eventSystem.currentInputSource == RoR2.UI.MPEventSystem.InputSource.Gamepad) {
-                            previousSelectable.Select();
-                        } else {
-                            previousSelectable.enabled = false;
-                            previousSelectable.enabled = true;
-                        }
-                        if (Data.mode == DataEarntConsumable.mode) {
-                            DataEarntConsumable.ClearRecentPoints();
-                        } else if (Data.mode == DataEarntPersistent.mode) {
-                            DataEarntPersistent.ClearRecentPoints();
-                        }
-                        Data.SaveConfigProfile();
-                        Destroy(background.gameObject);
-                    });
-                    backButtonButton.Select();
+            //        RoR2.UI.HGButton previousSelectable = backButton.GetComponent<RoR2.UI.MPEventSystemLocator>().eventSystem.currentSelectedGameObject.GetComponent<RoR2.UI.HGButton>();
+            //        Button backButtonButton = backButton.GetComponent<RoR2.UI.HGButton>();
+            //        backButtonButton.onClick.AddListener(() => {
+            //            UIDrawer.rootTransform.GetComponent<CanvasGroup>().interactable = true;
+            //            if (backButtonButton.GetComponent<RoR2.UI.MPEventSystemLocator>().eventSystem.currentInputSource == RoR2.UI.MPEventSystem.InputSource.Gamepad) {
+            //                previousSelectable.Select();
+            //            } else {
+            //                previousSelectable.enabled = false;
+            //                previousSelectable.enabled = true;
+            //            }
+            //            if (Data.mode == DataEarntConsumable.mode) {
+            //                DataEarntConsumable.ClearRecentPoints();
+            //            } else if (Data.mode == DataEarntPersistent.mode) {
+            //                DataEarntPersistent.ClearRecentPoints();
+            //            }
+            //            Data.SaveConfigProfile();
+            //            Destroy(background.gameObject);
+            //        });
+            //        backButtonButton.Select();
 
-                    UIDrawer.rootTransform.GetComponent<CanvasGroup>().interactable = false;
-                }
-            }
+            //        UIDrawer.rootTransform.GetComponent<CanvasGroup>().interactable = false;
+            //    }
+            //}
 
             static void DrawInfoPanel() {
                 rootTransform.GetComponent<CanvasGroup>().interactable = false;
@@ -519,6 +523,7 @@ namespace Phedg1Studios {
 
 
             static public void SetMenuStartingItems() {
+                Data.PopulateItemCatalogues();
                 UIVanilla.menuController.SetDesiredMenuScreen(startingItems);
             }
 
@@ -530,7 +535,7 @@ namespace Phedg1Studios {
                 Data.buyMultiplier = 1;
                 Data.RefreshInfo();
                 UIDrawer.DrawUI();
-                DrawRecentPanel();
+                //DrawRecentPanel();
                 rootTransform.transform.parent.GetComponent<CanvasGroup>().blocksRaycasts = true;
             }
 
