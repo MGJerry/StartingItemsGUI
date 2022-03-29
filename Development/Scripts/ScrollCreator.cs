@@ -48,6 +48,7 @@ namespace Phedg1Studios {
                 List<RectTransform> itemButtons = new List<RectTransform>();
                 for (int index = 0; index < items.Count; index++) {
                     itemButtons.Add(ButtonCreator.SpawnItemButton(itemsContent, textCount, items[index], images, texts));
+                    Log.LogInfo($"Spawned item button for Item ID {items[index]} successfully.");
                 }
 
                 itemsScrollScroll.content = itemsContentTransform;

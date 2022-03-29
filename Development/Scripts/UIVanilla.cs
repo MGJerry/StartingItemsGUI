@@ -6,11 +6,12 @@ using System.Collections.Generic;
 
 namespace Phedg1Studios {
     namespace StartingItemsGUI {
-        public class UIVanilla : MonoBehaviour {
+        public class UIVanilla : MonoBehaviour
+        {
             static public GameObject logbookButton;
             static public RoR2.UI.MainMenu.MainMenuController menuController;
             static public RoR2.UI.MainMenu.BaseMainMenuScreen mainMenu;
-
+            static private bool createdMenuButton = false;
 
             static public void GetObjectsFromScene() {
                 menuController = GameObject.FindObjectOfType(typeof(RoR2.UI.MainMenu.MainMenuController)) as RoR2.UI.MainMenu.MainMenuController;
@@ -26,15 +27,26 @@ namespace Phedg1Studios {
                 }
             }
 
-            static public void CreateMenuButton() {
-                if (logbookButton != null) {
-                    GameObject button = ButtonCreator.SpawnBlueButton(logbookButton.transform.parent.gameObject, new Vector2(0, 1), new Vector2(320, 48), "Starting Items", TMPro.TextAlignmentOptions.Left, new List<Image>());
+            static public void CreateMenuButton()
+            {
+                if (createdMenuButton)
+                {
+                    return;
+                }
+
+                if (logbookButton != null)
+                {
+                    var button = ButtonCreator.SpawnBlueButton(logbookButton.transform.parent.gameObject, new Vector2(0, 1), new Vector2(320, 48), "Starting Items", TMPro.TextAlignmentOptions.Left, new List<Image>());
                     button.transform.SetSiblingIndex(logbookButton.transform.GetSiblingIndex());
-                    float localScale = logbookButton.GetComponent<RectTransform>().rect.width / 320;
+                    var localScale = logbookButton.GetComponent<RectTransform>().rect.width / 320;
                     button.GetComponent<RectTransform>().localScale = new Vector3(localScale, localScale, 1);
-                    button.GetComponent<RoR2.UI.HGButton>().onClick.AddListener(() => {
+
+                    button.GetComponent<RoR2.UI.HGButton>().onClick.AddListener(() =>
+                    {
                         UIDrawer.SetMenuStartingItems();
                     });
+
+                    createdMenuButton = true;
                 }
             }
         }

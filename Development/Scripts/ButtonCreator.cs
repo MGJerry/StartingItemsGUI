@@ -61,6 +61,7 @@ namespace Phedg1Studios {
             }
 
             static public RectTransform SpawnItemButton(GameObject root, int textCount, int givenID, Dictionary<int, List<Image>> images, Dictionary<int, List<TMPro.TextMeshProUGUI>> texts, bool isFallback = false) {
+                Log.LogInfo($"Spawning an item button for: {givenID}");
                 images.Add(givenID, new List<Image>());
                 texts.Add(givenID, new List<TMPro.TextMeshProUGUI>());
 

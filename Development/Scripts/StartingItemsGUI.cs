@@ -7,15 +7,13 @@ using System.Collections.Generic;
 
 namespace Phedg1Studios {
     namespace StartingItemsGUI {
-        [BepInDependency("com.bepis.r2api")]
-        [R2API.Utils.R2APISubmoduleDependency("PrefabAPI")]
-        [R2API.Utils.R2APISubmoduleDependency("ResourcesAPI")]
-        [R2API.Utils.R2APISubmoduleDependency("NetworkingAPI")]
-        [BepInPlugin(PluginGUID, "StartingItemsGUI", "1.2.0")]
-        
+        [BepInEx.BepInDependency(R2API.R2API.PluginGUID)]
+        [BepInEx.BepInPlugin(PluginGUID, "StartingItemsGUI", "1.2.0")]
+        [R2API.Utils.R2APISubmoduleDependency(nameof(R2API.ItemAPI), nameof(R2API.PrefabAPI), nameof(R2API.Networking.NetworkingAPI), "ResourcesAPI")]
 
         public class StartingItemsGUI : BaseUnityPlugin {
             public const string PluginGUID = "com.Phedg1Studios.StartingItemsGUI";
+            public BepInEx.PluginInfo PInfo = null;
 
             static public StartingItemsGUI startingItemsGUI;
             List<Coroutine> characterMasterCoroutines = new List<Coroutine>();
@@ -36,9 +34,11 @@ namespace Phedg1Studios {
                 UIVanilla.CreateMenuButton();
             }
 
-            void Start() {
+            void Awake()
+            {
+                Log.Init(Logger);
                 startingItemsGUI = this;
-                OnceSetup();
+                startingItemsGUI.PInfo = Info;
                 On.RoR2.PreGameController.OnEnable += (orig, preGameController) => {
                     Data.localUsers.Clear();
                     Data.SetForcedMode(-1);
@@ -47,11 +47,12 @@ namespace Phedg1Studios {
                 };
                 UnityEngine.SceneManagement.SceneManager.sceneLoaded += (scene, mode) => {
                     if (scene.name == "title") {
+                        OnceSetup();
                         Data.localUsers.Clear();
                         Data.SetForcedMode(-1);
                         GameManager.ClearItems();
                         SceneLoadSetup();
-                        Data.PopulateItemCatalogues();
+                        //Data.PopulateItemCatalogues();
                     }
                 };
                 RoR2.Run.onRunStartGlobal += (run) => {
