@@ -45,26 +45,34 @@ namespace Phedg1Studios {
                 new Color(0 / 255f, 0 / 255f, 0f / 255f),
             };
 
-            static string modName = "StartingItemsGUI";
-            static string assetBundleLocation = "Resources.assets";
-            static string assetPrefix = "@Phedg1Studios.StartingItemsGUI";
+            // The textures and fonts lists will be populated.
+            static public void LoadResources()
+            {
+                var pluginDirectory = System.IO.Directory.GetParent(StartingItemsGUI.startingItemsGUI.PInfo.Location);
+                var assetLocation = System.IO.Path.Combine(pluginDirectory.FullName, "Resources", "StartingItemsGUIAssets");
+                var fileAssets = UnityEngine.AssetBundle.LoadFromFile(assetLocation);
 
+                foreach (string tierTextureName in tierTextureNames)
+                {
+                    tierTextures.Add(fileAssets.LoadAsset<Sprite>(tierTextureName));
+                }
 
-            static public void LoadResources() {
-                var pluginFolder = System.IO.Path.GetDirectoryName(typeof(Resources).Assembly.Location);
+                foreach (string panelTextureName in panelTextureNames)
+                {
+                    panelTextures.Add(fileAssets.LoadAsset<Sprite>(panelTextureName));
+                }
 
-                AssetBundle bundle = AssetBundle.LoadFromFile(System.IO.Path.Combine(pluginFolder, assetBundleLocation));
-                
-                foreach (string tierTextureName in tierTextureNames) {
-                    tierTextures.Add(bundle.LoadAsset<Sprite>(tierTextureName));
+                foreach (string fontName in fontNames)
+                {
+                    fonts.Add(fileAssets.LoadAsset<TMPro.TMP_FontAsset>(fontName));
                 }
-                foreach (string panelTextureName in panelTextureNames) {
-                    panelTextures.Add(bundle.LoadAsset<Sprite>(panelTextureName));
-                }
-                foreach (string fontName in fontNames) {
-                    fonts.Add(bundle.LoadAsset<TMPro.TMP_FontAsset>(fontName));
-                }
-                bundle.Unload(false);
+
+                fileAssets.Unload(false);
+
+                Log.LogInfo("Finished loading assets.");
+                Log.LogInfo($"Tier texture count: {tierTextures.Count}");
+                Log.LogInfo($"Panel texture count: {panelTextures.Count}");
+                Log.LogInfo($"Font count: {fonts.Count}");
             }
         }
     }
