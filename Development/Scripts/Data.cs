@@ -208,6 +208,7 @@ namespace Phedg1Studios {
                         if (PlatformSystems.saveSystem.GetProfile(profileID) != null && PlatformSystems.saveSystem.GetProfile(profileID).loggedIn)
                         {
                             userProfile = profileID;
+                            return;
                         }
                     }
                 }
