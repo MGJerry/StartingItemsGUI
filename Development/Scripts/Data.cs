@@ -459,14 +459,18 @@ namespace Phedg1Studios {
                 if (allItemIDs.ContainsKey(itemID))
                 {
                     var unlockableDef = RoR2.ItemCatalog.GetItemDef(allItemIDs[itemID]).unlockableDef;
-                    var pickup = RoR2.ItemCatalog.GetItemDef(allItemIDs[itemID]).CreatePickupDef().pickupIndex;
+                    var itemIndex = allItemIDs[itemID];
+                    var pickup = RoR2.PickupCatalog.FindPickupIndex(itemIndex);
+
                     return user.HasUnlockable(unlockableDef) && user.HasDiscoveredPickup(pickup);
 
                 }
                 else if (allEquipmentIDs.ContainsKey(itemID))
                 {
                     var unlockableDef = RoR2.EquipmentCatalog.GetEquipmentDef(allEquipmentIDs[itemID]).unlockableDef;
-                    var pickup = RoR2.EquipmentCatalog.GetEquipmentDef(allEquipmentIDs[itemID]).CreatePickupDef().pickupIndex;
+                    var equipmentIndex = allEquipmentIDs[itemID];
+                    var pickup = RoR2.PickupCatalog.FindPickupIndex(equipmentIndex);
+
                     return user.HasUnlockable(unlockableDef) && user.HasDiscoveredPickup(pickup);
                 }
                 return false;
