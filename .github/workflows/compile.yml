@@ -18,6 +18,6 @@ jobs:
 
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v2.0.0
-          
+
       - name: Compile x64
         run: dotnet build Development/StartingItemsGUI.csproj -a x64 --nologo
