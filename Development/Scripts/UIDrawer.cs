@@ -523,19 +523,19 @@ namespace Phedg1Studios {
 
 
             static public void SetMenuStartingItems() {
-                Data.PopulateItemCatalogues();
                 UIVanilla.menuController.SetDesiredMenuScreen(startingItems);
             }
 
-            static public void SetMenuTitle() {
+            static public void SetMenuTitle()
+            {
                 UIVanilla.menuController.SetDesiredMenuScreen(UIVanilla.mainMenu);
             }
 
-            static public void OpenStartingItems() {
+            static public void OpenStartingItems()
+            {
                 Data.buyMultiplier = 1;
                 Data.RefreshInfo();
                 UIDrawer.DrawUI();
-                //DrawRecentPanel();
                 rootTransform.transform.parent.GetComponent<CanvasGroup>().blocksRaycasts = true;
             }
 

@@ -48,7 +48,7 @@ namespace Phedg1Studios {
             // The textures and fonts lists will be populated.
             static public void LoadResources()
             {
-                var pluginDirectory = System.IO.Directory.GetParent(StartingItemsGUI.startingItemsGUI.PInfo.Location);
+                var pluginDirectory = System.IO.Directory.GetParent(StartingItemsGUI.Instance.PInfo.Location);
                 var assetLocation = System.IO.Path.Combine(pluginDirectory.FullName, "Resources", "StartingItemsGUIAssets");
                 var fileAssets = UnityEngine.AssetBundle.LoadFromFile(assetLocation);
 

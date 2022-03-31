@@ -6,26 +6,12 @@ using R2API;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Phedg1Studios {
-    namespace StartingItemsGUI {
-        public class Util : MonoBehaviour {
-
-            void Update() {
-                if (Input.GetKeyDown(KeyCode.F2)) {
-                    /*
-                    Transform newObject = null;
-                    List<string> objectHierarchyB = new List<string>() { "MainMenu", "MENU: Title", "TitleMenu", "SafeZone", "GenericMenuButtonPanel", "JuicePanel", "GenericMenuButton (Logbook)" };
-                    if (Util.util.GetObjectFromHierarchy(ref newObject, objectHierarchyB, 0, null)) {
-                        //newObject.gameObject;
-                    }
-                    */
-                    //SaveSceneHierarchy();
-                    //LogComponentsOfObject(GameObject.Find("ItemEntryIcon(Clone)"));
-                    //LogComponentsOfType(typeof(RoR2.UI.TooltipController));
-                }
-            }
-
-
+namespace Phedg1Studios
+{
+    namespace StartingItemsGUI
+    {
+        public class Util : MonoBehaviour
+        {
             static public List<float> GetDifficultyParabola(float easyMultiplier, float normalMultiplier, float hardMultiplier) {
                 float max = Mathf.Infinity;
                 float min = -Mathf.Infinity;
@@ -146,44 +132,6 @@ namespace Phedg1Studios {
                 return "";
             }
 
-            static public void LogComponentsOfObject(GameObject givenObject) {
-                if (givenObject != null) {
-                    Component[] components = givenObject.GetComponents(typeof(Component));
-                    foreach (Component component in components) {
-                        print(component);
-                        RoR2.GivePickupsOnStart castedComponent = component as RoR2.GivePickupsOnStart;
-                        if (castedComponent != null) {
-                            print(castedComponent.enabled);
-                            print(castedComponent.equipmentString);
-                            
-                        }
-                    };
-                }
-            }
-
-            static public void LogComponentsOfType(Type givenType) {
-                UnityEngine.Object[] sceneObjects = GameObject.FindObjectsOfType(givenType);
-                print(sceneObjects.Length);
-                foreach (UnityEngine.Object sceneObject in sceneObjects) {
-                    RoR2.UI.TooltipController controller = sceneObject as RoR2.UI.TooltipController;
-                    print(controller.GetComponent<Canvas>());
-                    print(controller.GetComponent<Canvas>().sortingOrder);
-                    print(sceneObject.name);
-                }
-            }
-
-            static public void SaveSceneHierarchy() {
-                GameObject[] rootObjects = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
-                string sceneTree = "";
-                foreach (GameObject rootObject in rootObjects) {
-                    sceneTree = MapHierarchy(rootObject.transform, 0, sceneTree);
-                }
-                string sceneTreePath = BepInEx.Paths.BepInExRootPath + "/" + "config" + "/" + Data.modFolder + "/" + "SceneTree.txt";
-                StreamWriter writer = new StreamWriter(sceneTreePath, false);
-                writer.Write(sceneTree);
-                writer.Close();
-            }
-
             static string MapHierarchy(Transform givenTransform, int givenDepth, string givenTree) {
                 string workingString = "";
                 for (int spaceNumber = 0; spaceNumber < givenDepth * 4; spaceNumber++) {
@@ -226,22 +174,14 @@ namespace Phedg1Studios {
                 return false;
             }
 
-            static public void LogAllCharacters(GameObject givenPrefab = null) {
-                RoR2.CharacterSpawnCard[] allCharacters = UnityEngine.Resources.LoadAll<RoR2.CharacterSpawnCard>("SpawnCards/CharacterSpawnCards");
-                foreach (RoR2.CharacterSpawnCard spawnCard in allCharacters) {
-                    print(spawnCard.name);
-                    print(spawnCard.prefab.name);
-                    /*
-                    if (spawnCard.prefab == givenPrefab) {
-                        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                        print(spawnCard.name);
-                        if (spawnCard.name == "cscScavLunar") {
-                            print(spawnCard.prefab.name);
-                        }
-                    }
-                    */
+            public static void MakeDirectoryExist(string location)
+            {
+                Log.LogInfo("Checking if directory exists: " + location);
+
+                if (!System.IO.Directory.Exists(location))
+                {
+                    System.IO.Directory.CreateDirectory(location);
                 }
-                print("----");
             }
         }
     }

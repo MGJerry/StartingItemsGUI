@@ -115,28 +115,35 @@ namespace Phedg1Studios {
 
             static public List<string> localUsers = new List<string>();
 
-            static public void PopulateItemCatalogues() {
+            static public void PopulateItemCatalogues()
+            {
                 int index = 0;
-                foreach (ItemIndex itemIndex in RoR2.ItemCatalog.allItems) {
+                foreach (ItemIndex itemIndex in RoR2.ItemCatalog.allItems)
+                {
                     allItemIDs.Add(index, itemIndex);
                     allItemsIndexes.Add(itemIndex, index);
 
                     if (!RoR2.ItemCatalog.tier1ItemList.Contains(itemIndex) &&
                         !RoR2.ItemCatalog.tier2ItemList.Contains(itemIndex) &&
                         !RoR2.ItemCatalog.tier3ItemList.Contains(itemIndex) &&
-                        !RoR2.ItemCatalog.lunarItemList.Contains(itemIndex)) {
+                        !RoR2.ItemCatalog.lunarItemList.Contains(itemIndex))
+                    {
                         bossItems.Add(itemIndex);
                     }
                     index += 1;
                 }
                 index = 1000;
-                foreach (EquipmentIndex equipmentIndex in RoR2.EquipmentCatalog.allEquipment) {
+                foreach (EquipmentIndex equipmentIndex in RoR2.EquipmentCatalog.allEquipment)
+                {
                     allEquipmentIDs.Add(index, equipmentIndex);
                     allEquipmentIndexes.Add(equipmentIndex, index);
 
-                    if (!RoR2.EquipmentCatalog.equipmentList.Contains(equipmentIndex)) {
+                    if (!RoR2.EquipmentCatalog.equipmentList.Contains(equipmentIndex))
+                    {
                         eliteEquipment.Add(equipmentIndex);
-                    } else if (RoR2.EquipmentCatalog.GetEquipmentDef(equipmentIndex).isLunar) {
+                    }
+                    else if (RoR2.EquipmentCatalog.GetEquipmentDef(equipmentIndex).isLunar)
+                    {
                         lunarEquipment.Add(equipmentIndex);
                     }
                     index += 1;
