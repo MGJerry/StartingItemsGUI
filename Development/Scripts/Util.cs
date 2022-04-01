@@ -1,10 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using R2API;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Phedg1Studios
 {
@@ -12,31 +9,50 @@ namespace Phedg1Studios
     {
         public class Util : MonoBehaviour
         {
-            static public List<float> GetDifficultyParabola(float easyMultiplier, float normalMultiplier, float hardMultiplier) {
+            static public List<float> GetDifficultyParabola(float easyMultiplier, float normalMultiplier, float hardMultiplier, float eclipseMultiplier)
+            {
                 float max = Mathf.Infinity;
                 float min = -Mathf.Infinity;
                 float a = 0;
                 float b = 0;
                 float c = 0;
 
-                List<Vector2> unsortedCoordinates = new List<Vector2>() {
+                List<Vector2> unsortedCoordinates = new List<Vector2>()
+                {
                      new Vector2(RoR2.DifficultyCatalog.GetDifficultyDef(RoR2.DifficultyIndex.Easy).scalingValue, easyMultiplier),
                      new Vector2(RoR2.DifficultyCatalog.GetDifficultyDef(RoR2.DifficultyIndex.Normal).scalingValue, normalMultiplier),
                      new Vector2(RoR2.DifficultyCatalog.GetDifficultyDef(RoR2.DifficultyIndex.Hard).scalingValue, hardMultiplier),
+                     new Vector2(RoR2.DifficultyCatalog.GetDifficultyDef(RoR2.DifficultyIndex.Eclipse1).scalingValue, eclipseMultiplier),
+                     // These vaues should probably be adjusted some day.
+                     new Vector2(RoR2.DifficultyCatalog.GetDifficultyDef(RoR2.DifficultyIndex.Eclipse2).scalingValue, eclipseMultiplier + 1),
+                     new Vector2(RoR2.DifficultyCatalog.GetDifficultyDef(RoR2.DifficultyIndex.Eclipse3).scalingValue, eclipseMultiplier + 2),
+                     new Vector2(RoR2.DifficultyCatalog.GetDifficultyDef(RoR2.DifficultyIndex.Eclipse4).scalingValue, eclipseMultiplier + 3),
+                     new Vector2(RoR2.DifficultyCatalog.GetDifficultyDef(RoR2.DifficultyIndex.Eclipse5).scalingValue, eclipseMultiplier + 4),
+                     new Vector2(RoR2.DifficultyCatalog.GetDifficultyDef(RoR2.DifficultyIndex.Eclipse6).scalingValue, eclipseMultiplier + 5),
+                     new Vector2(RoR2.DifficultyCatalog.GetDifficultyDef(RoR2.DifficultyIndex.Eclipse7).scalingValue, eclipseMultiplier + 6),
+                     new Vector2(RoR2.DifficultyCatalog.GetDifficultyDef(RoR2.DifficultyIndex.Eclipse8).scalingValue, eclipseMultiplier + 7)
                 };
-                Dictionary<float, List<float>> dictCoordinates = new Dictionary<float, List<float>>();
-                foreach (Vector2 coordinate in unsortedCoordinates) {
-                    if (!dictCoordinates.ContainsKey(coordinate.x)) {
+
+                var dictCoordinates = new Dictionary<float, List<float>>();
+                foreach (var coordinate in unsortedCoordinates)
+                {
+                    if (!dictCoordinates.ContainsKey(coordinate.x))
+                    {
                         dictCoordinates.Add(coordinate.x, new List<float>());
                     }
                     dictCoordinates[coordinate.x].Add(coordinate.y);
                 }
+
                 List<float> xValues = dictCoordinates.Keys.ToList();
+                // I wonder if sorting is actually necessary.
                 xValues.Sort();
-                List<Vector2> coordinates = new List<Vector2>();
-                foreach (float xValue in xValues) {
+                var coordinates = new List<Vector2>();
+                foreach (var xValue in xValues)
+                {
+                    // Same as above. Is sorting necessary?
                     dictCoordinates[xValue].Sort();
-                    foreach (float yValue in dictCoordinates[xValue]) {
+                    foreach (var yValue in dictCoordinates[xValue])
+                    {
                         coordinates.Add(new Vector2(xValue, yValue));
                     }
                 }
@@ -44,37 +60,52 @@ namespace Phedg1Studios
                 Vector2 A = coordinates[0];
                 Vector2 B = coordinates[1];
                 Vector2 C = coordinates[2];
-                if ((A.x != B.x || A.y == B.y ) && (B.x != C.x || B.y == C.y) && (C.x != A.x || C.y == A.y)) {
-                    if (A.y != B.y && B.y != C.y && A.x != B.x && B.x != C.x && C.x != A.x) {
-                        float[] AB = new float[3] { Mathf.Pow(A.x, 2) - Mathf.Pow(B.x, 2), A.x - B.x, A.y - B.y };
-                        float[] BC = new float[3] { Mathf.Pow(B.x, 2) - Mathf.Pow(C.x, 2), B.x - C.x, B.y - C.y };
+
+                // I am not touching this with a 10-foot pole.
+                if ((A.x != B.x || A.y == B.y ) && (B.x != C.x || B.y == C.y) && (C.x != A.x || C.y == A.y))
+                {
+                    if (A.y != B.y && B.y != C.y && A.x != B.x && B.x != C.x && C.x != A.x)
+                    {
+                        var AB = new float[] { Mathf.Pow(A.x, 2) - Mathf.Pow(B.x, 2), A.x - B.x, A.y - B.y };
+                        var BC = new float[] { Mathf.Pow(B.x, 2) - Mathf.Pow(C.x, 2), B.x - C.x, B.y - C.y };
                         a = (BC[1] * AB[2] + AB[1] * BC[2]) / (BC[1] * AB[0] + AB[1] * BC[0]);
                         b = (AB[2] - AB[0] * a) / AB[1];
                         c = A.y - a * Mathf.Pow(A.x, 2) - b * A.x;
-                    } else if (A.y == B.y && B.y == C.y) {
+                    }
+                    else if (A.y == B.y && B.y == C.y)
+                    {
                         c = A.y;
-                    } else {
+                    }
+                    else
+                    {
                         Vector2 D;
                         Vector2 E;
-                        if (A.y == B.y) {
+                        if (A.y == B.y)
+                        {
                             D = B;
                             E = C;
-                        } else {
+                        }
+                        else
+                        {
                             D = B;
                             E = A; 
                         }
-                        float[] DE = new float[2] { D.x - E.x, D.y - E.y };
+
+                        var DE = new float[] { D.x - E.x, D.y - E.y };
                         b = DE[1] / DE[0];
                         c = D.y - D.x * b;
-                        if (D.y > E.y) {
+                        if (D.y > E.y)
+                        {
                             max = D.y;
-                        } else {
+                        }
+                        else
+                        {
                             min = D.y;
                         }
                     }
                 }
-                //print(a.ToString() + " " + b.ToString() + " " + c.ToString() + " " + max.ToString() + " " + min.ToString());
-                return new List<float>() { a, b, c, max, min };
+
+                return new() { a, b, c, max, min };
             }
 
             static public string TrimString(string givenString) {

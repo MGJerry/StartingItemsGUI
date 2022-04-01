@@ -17,6 +17,7 @@ namespace Phedg1Studios {
             static public float easyMultiplier;
             static public float normalMultiplier;
             static public float hardMultiplier;
+            static public float eclipseMultiplier;
             static public bool pastPlay;
 
             static public float defaultMultiplierDefault = 1;
@@ -28,6 +29,7 @@ namespace Phedg1Studios {
             static public float easyMultiplierDefault = 1;
             static public float normalMultiplierDefault = 2;
             static public float hardMultiplierDefault = 4;
+            static public float eclipseMultiplierDefault = 6;
             static public int userPointsLockedDefault = -1;
             static public bool pastPlayDefault = false;
 
@@ -47,12 +49,15 @@ namespace Phedg1Studios {
             static private float easyWinStages = 0;
             static private float normalWinStages = 0;
             static private float hardWinStages = 0;
+            static private float eclipseWinStages = 0;
             static private float easyLossStages = 0;
             static private float normalLossStages = 0;
             static private float hardLossStages = 0;
+            static private float eclipseLossStages = 0;
             static private float easyObliterateStages = 0;
             static private float normalObliterateStages = 0;
             static private float hardObliterateStages = 0;
+            static private float eclipseObliterateStages = 0;
 
             static private int userPointsAdjust = 0;
 
@@ -70,8 +75,9 @@ namespace Phedg1Studios {
             static public List<string> obliterateMultiplierName = new List<string>() { "obliterationMultiplierPersistent" };
             static public List<string> limboMultiplierName = new List<string>() { "limboMultiplierPersistent" };
             static public List<string> easyMultiplierName = new List<string>() { "easyMultiplierPersistent" };
-            static public List<string> normalMultiplierName = new List<string>() { "hardMultiplierPersistent" };
-            static public List<string> hardMultiplierName = new List<string>() { "itemsPurchasedPersistent" };
+            static public List<string> normalMultiplierName = new List<string>() { "normalMultiplierPersistent" };
+            static public List<string> hardMultiplierName = new List<string>() { "hardPurchasedPersistent" };
+            static public List<string> eclipseMultiplierName = new List<string>() { "eclipsePurchasedPersistent" };
             static public List<string> pointsLockedName = new List<string>() { "earntPersistentCreditsLocked" };
             static public List<string> pastPlayName = new List<string>() { "pastPlay" };
 
@@ -102,6 +108,7 @@ namespace Phedg1Studios {
                 easyMultiplier = Data.ParseFloat(easyMultiplierDefault, Util.GetConfig(config, easyMultiplierName));
                 normalMultiplier = Data.ParseFloat(normalMultiplierDefault, Util.GetConfig(config, normalMultiplierName));
                 hardMultiplier = Data.ParseFloat(hardMultiplierDefault, Util.GetConfig(config, hardMultiplierName));
+                eclipseMultiplier = Data.ParseFloat(eclipseMultiplierDefault, Util.GetConfig(config, eclipseMultiplierName));
                 userPointsLocked = Data.ParseInt(userPointsLockedDefault, Util.GetConfig(config, pointsLockedName));
                 pastPlay = Data.ParseBool(pastPlayDefault, Util.GetConfig(config, pastPlayName));
             }
@@ -154,6 +161,9 @@ namespace Phedg1Studios {
                                 hardWinStages = newStages[6];
                                 hardLossStages = newStages[7];
                                 hardObliterateStages = newStages[8];
+                                eclipseWinStages = newStages[9];
+                                eclipseLossStages = newStages[10];
+                                eclipseObliterateStages = newStages[11];
                             }
                         }
                     }
@@ -172,6 +182,9 @@ namespace Phedg1Studios {
                 points += hardWinStages * (hardMultiplier * winMultiplier - defaultMultiplier);
                 points += hardLossStages * (hardMultiplier * lossMutliplier - defaultMultiplier);
                 points += hardObliterateStages * (hardMultiplier * obliterateMultiplier - defaultMultiplier);
+                points += eclipseWinStages * (eclipseMultiplier * winMultiplier - defaultMultiplier);
+                points += eclipseLossStages * (eclipseMultiplier * lossMutliplier - defaultMultiplier);
+                points += eclipseObliterateStages * (eclipseMultiplier * obliterateMultiplier - defaultMultiplier);
                 points += userPointsAdjust;
 
                 userPointsEarnt = Mathf.FloorToInt(points);
@@ -284,7 +297,7 @@ namespace Phedg1Studios {
             }
 
             static float GetDifficultyMultiplier(Run run) {
-                List<float> functionValues = Util.GetDifficultyParabola(easyMultiplier, normalMultiplier, hardMultiplier);
+                List<float> functionValues = Util.GetDifficultyParabola(easyMultiplier, normalMultiplier, hardMultiplier, eclipseMultiplier);
                 float scalingValue = DifficultyCatalog.GetDifficultyDef(run.selectedDifficulty).scalingValue;
                 scalingValue += Data.GetEclipseScalingValueAdd(run);
                 return Mathf.Max(functionValues[4], Mathf.Min(functionValues[3], functionValues[0] * Mathf.Pow(scalingValue, 2) + functionValues[1] * scalingValue + functionValues[2]));

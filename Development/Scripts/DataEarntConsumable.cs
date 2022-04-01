@@ -15,6 +15,7 @@ namespace Phedg1Studios {
             static public float easyMultiplier;
             static public float normalMultiplier;
             static public float hardMultiplier;
+            static public float eclipseMultiplier;
 
             static public float winMultiplierDefault = 3f;
             static public float lossMutliplierDefault = 1.5f;
@@ -23,6 +24,7 @@ namespace Phedg1Studios {
             static public float easyMultiplierDefault = 2;
             static public float normalMultiplierDefault = 4;
             static public float hardMultiplierDefault = 8;
+            static public float eclipseMultiplierDefault = 10;
 
             static public int userPoints = -1;
             static public int userPointsBackup = -1;
@@ -45,6 +47,7 @@ namespace Phedg1Studios {
             static public List<string> easyMultiplierName = new List<string>() { "easyMultiplierConsumable" };
             static public List<string> normalMultiplierName = new List<string>() { "normalMultiplierConsumable" };
             static public List<string> hardMultiplierName = new List<string>() { "hardMultiplierConsumable" };
+            static public List<string> eclipseMultiplierName = new List<string>() { "eclipseMultiplierConsumable" };
 
 
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -68,6 +71,7 @@ namespace Phedg1Studios {
                 easyMultiplier = Data.ParseFloat(easyMultiplierDefault, Util.GetConfig(config, easyMultiplierName));
                 normalMultiplier = Data.ParseFloat(normalMultiplierDefault, Util.GetConfig(config, normalMultiplierName));
                 hardMultiplier = Data.ParseFloat(hardMultiplierDefault, Util.GetConfig(config, hardMultiplierName));
+                eclipseMultiplier = Data.ParseFloat(eclipseMultiplierDefault, Util.GetConfig(config, eclipseMultiplierName));
             }
 
             static public void VerifyItemsPurchased() {
@@ -144,7 +148,7 @@ namespace Phedg1Studios {
 
 
             static float GetDifficultyMultiplier(Run run) {
-                List<float> functionValues = Util.GetDifficultyParabola(easyMultiplier, normalMultiplier, hardMultiplier);
+                List<float> functionValues = Util.GetDifficultyParabola(easyMultiplier, normalMultiplier, hardMultiplier, eclipseMultiplier);
                 float scalingValue = DifficultyCatalog.GetDifficultyDef(run.selectedDifficulty).scalingValue;
                 scalingValue += Data.GetEclipseScalingValueAdd(run);
                 return Mathf.Max(functionValues[4], Mathf.Min(functionValues[3], functionValues[0] * Mathf.Pow(scalingValue, 2) + functionValues[1] * scalingValue + functionValues[2]));
