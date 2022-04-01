@@ -24,12 +24,11 @@
 
   <ItemGroup>
     <PackageReference Include="R2API" Version="4.2.1" />
-    <PackageReference Include="Tommy" Version="3.1.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Resources\*.*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

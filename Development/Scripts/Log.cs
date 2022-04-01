@@ -2,7 +2,9 @@
 {
     public static class Log
     {
+#if DEBUG
         internal static BepInEx.Logging.ManualLogSource _logSource;
+#endif
 
         internal static void Init(BepInEx.Logging.ManualLogSource logSource)
         {

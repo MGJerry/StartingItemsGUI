@@ -335,7 +335,7 @@ namespace Phedg1Studios {
             }
 
             static private int GetStat(RoR2.Stats.StatDef givenStatDef) {
-                UInt64 statValue = RoR2.UserProfile.defaultProfile.statSheet.GetStatValueULong(givenStatDef);
+                UInt64 statValue = RoR2.PlatformSystems.saveSystem.GetProfile(Data.userProfile).statSheet.GetStatValueULong(givenStatDef);
                 int statValueAdjusted;
                 if (statValue <= System.Int32.MaxValue) {
                     statValueAdjusted = System.Convert.ToInt32(statValue);

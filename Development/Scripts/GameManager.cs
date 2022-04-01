@@ -127,7 +127,7 @@ namespace Phedg1Studios {
                     if (!status[connectionID][2]) {
                         status[connectionID][2] = true;
                         if (Data.modEnabled && Data.mode == modes[connectionID]) {
-                            spawnItemCoroutines.Add(StartingItemsGUI.startingItemsGUI.StartCoroutine(SpawnItemsCoroutine(connectionID)));
+                            spawnItemCoroutines.Add(StartingItemsGUI.Instance.StartCoroutine(SpawnItemsCoroutine(connectionID)));
                         }
                     }
                 }
@@ -183,13 +183,16 @@ namespace Phedg1Studios {
                 }
             }
 
-            static public void ClearItems() {
+            static public void ClearItems()
+            {
                 status.Clear();
                 modes.Clear();
                 items.Clear();
                 characterMasters.Clear();
-                foreach(Coroutine coroutine in spawnItemCoroutines) {
-                    StartingItemsGUI.startingItemsGUI.StopCoroutine(coroutine);
+
+                foreach(Coroutine coroutine in spawnItemCoroutines)
+                {
+                    StartingItemsGUI.Instance.StopCoroutine(coroutine);
                 }
                 spawnItemCoroutines.Clear();
             }
