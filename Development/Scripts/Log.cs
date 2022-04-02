@@ -1,4 +1,4 @@
-﻿namespace Phedg1Studios.StartingItemsGUI
+﻿namespace StartingItemsGUI
 {
     public static class Log
     {
