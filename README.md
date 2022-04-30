@@ -3,25 +3,22 @@
 ### TL:DR
 This mod will allow players to use a GUI to select which items will be given to them at the start of a run. There are 4 modes: *Free*, *Earnt Persistent*, *Earnt Consumable* and *Random*. Works in both singleplayer and multiplayer (if the host and the client have the mod installed, enabled and are using the same mode. NOTE: Each client has to select their own items).
 
-### How-To
+### Build
 
-```
+```zsh
 git clone https://github.com/szymonj99/StartingItemsGUI
-cd StartingItemsGUI/Development
-dotnet restore
-dotnet build StartingItemsGUI.csproj -a x64 --nologo
+cd StartingItemsGUI
+dotnet restore && dotnet build StartingItemsGUI.csproj --arch x64 --nologo
 ```
 
-Make sure you have `MMHOOK_RoR2.dll` (install `HookGenPatcher` from R2ModMan) installed.
-
-Then copy `StartingItemsGUI.dll` from `Development/Build/{Release/Debug}` to the location of your BepInEx plugin folder. You can overwrite the outdated DLL file with this one.
+This will result in a `StartingItemsGUI.dll` file being output to either `Build/Debug` or `Build/Release`, depending on which build you have compiled.
+One way to get this mod into your game is to then copy the `.dll` file into the outdated `StartingItemsGUI` folder and overwrite when prompted.
 
 ### License
 This repository is licensed under the included [GNU GPLv3](LICENSE.txt) license.
 
 ### Distribution
-This mod will be compiled soon (tm).
-
+This mod will be uploaded to Thunderstore soon(tm).
 
 ### INSPIRATION
 This mod was inspired by features in other roguelike games such as *Undermine*, *Dungreed* and *Dead Cells*. The goal was to give a returning player a sense of progression, to give them a boost to make them more formidable the more they play.
@@ -56,10 +53,10 @@ Players will earn credits for every stage they have cleared. The amount of credi
 Players will earn credits for finishing games. The amount of credits cleared will vary based on the game's difficulty and how it ended (win, loss, obliteration, limbo).
 
 ## CONFIGURATION
-After a player has opened the item shop interface for the first time a number of configuration files will be created. These can be found at *"<RISK OF RAIN 2 INSTALL LOCATION>/Risk of Rain 2/BepInEx/config/"* and *"<RISK OF RAIN 2 INSTALL LOCATION>/Risk of Rain 2/BepInEx/config/Starting Items GUI/"*. If you desire to alter the configuration of the mod it must be done by editing these files. The intention is that this would only be necessary once, with the rest of the player's interactions being done through the shop interface inside the game itself.
-
-**com.szymonj99.StartingItemsGUI.toml**
-This file contains all the mod config options.
+After a player has opened the item shop interface for the first time a number of configuration files will be created.
+These can be found at *"<RISK OF RAIN 2 INSTALL LOCATION>/Risk of Rain 2/BepInEx/config/"* and *"<RISK OF RAIN 2 INSTALL LOCATION>/Risk of Rain 2/BepInEx/config/Starting Items GUI/"*.
+If you desire to alter the configuration of the mod it must be done by editing these files.
+The intention is that this would only be necessary once, with the rest of the player's interactions being done through the shop interface inside the game itself.
 
 ## CREDITS
 
