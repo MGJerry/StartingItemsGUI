@@ -183,14 +183,10 @@ namespace StartingItemsGUI
             };
         }
 
-        IEnumerator<float> GetMasterController(NetworkUser networkUser)
+        System.Collections.IEnumerator GetMasterController(RoR2.NetworkUser networkUser)
         {
-            PlayerCharacterMasterController masterController = networkUser.masterController;
-            while (masterController == null)
-            {
-                masterController = networkUser.masterController;
-                yield return 0;
-            }
+            yield return new UnityEngine.WaitUntil(() => networkUser.masterController != null);
+
             GameManager.SetCharacterMaster(networkUser.netId.Value, networkUser.masterController.master);
         }
     }
