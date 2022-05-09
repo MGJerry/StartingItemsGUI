@@ -4,27 +4,28 @@ namespace StartingItemsGUI
 {
     public class UIDrawerRandom : MonoBehaviour
     {
-        static public void DrawUI() {
-            foreach (int itemID in UIDrawer.itemTexts.Keys) {
-                UIDrawer.itemTexts[itemID][0].text = Data.GetItemPrice(itemID).ToString();
-                for (int imageIndex = 0; imageIndex < 2; imageIndex++) {
-                    UIDrawer.itemImages[itemID][imageIndex + 2].gameObject.SetActive(false);
+        public static void DrawUI()
+        {
+            foreach (var startingItem in UIDrawer.itemTexts.Keys)
+            {
+                UIDrawer.itemTexts[startingItem][0].text = Data.GetStartingItemPrice(startingItem).ToString();
+                for (var imageIndex = 0; imageIndex < 2; imageIndex++)
+                {
+                    UIDrawer.itemImages[startingItem][imageIndex + 2].gameObject.SetActive(false);
                 }
 
-                if (DataEarntPersistent.userPointsBackup < Data.GetItemPrice(itemID)) {
-                    UIDrawer.itemTexts[itemID][0].color = UIConfig.disabledColor;
-                    for (int imageIndex = 0; imageIndex < 2; imageIndex++) {
-                        UIDrawer.itemImages[itemID][imageIndex].color = UIConfig.disabledColor;
+                if (StartingItemsGUI.Instance.CurrentProfile.Credits < Data.GetStartingItemPrice(startingItem))
+                {
+                    UIDrawer.itemTexts[startingItem][0].color = UIConfig.disabledColor;
+                    for (var imageIndex = 0; imageIndex < 2; imageIndex++)
+                    {
+                        UIDrawer.itemImages[startingItem][imageIndex].color = UIConfig.disabledColor;
                     }
                 }
 
             }
 
-            UIDrawer.pointText.text = "CREDITS: " + DataRandom.GetPoints() + " ¢";
-        }
-
-        static public void Refresh() {
-                
+            UIDrawer.pointText.text = $"CREDITS: {StartingItemsGUI.Instance.CurrentProfile.Credits} ¢";
         }
     }
 }

@@ -23,8 +23,8 @@ namespace StartingItemsGUI
     }
 
     public class ItemPurchased : INetMessage {
-        public int _itemID = -1;
-        public int _itemCount = 0;
+        public System.UInt32 _itemID = 0;
+        public uint _itemCount = 0;
         public uint _connectionID = 0;
 
         public void Serialize(NetworkWriter writer) {
@@ -34,8 +34,8 @@ namespace StartingItemsGUI
         }
 
         public void Deserialize(NetworkReader reader) {
-            _itemID = reader.ReadInt32();
-            _itemCount = reader.ReadInt32();
+            _itemID = reader.ReadUInt32();
+            _itemCount = reader.ReadUInt32();
             _connectionID = reader.ReadUInt32();
         }
 
@@ -45,16 +45,16 @@ namespace StartingItemsGUI
     }
 
     public class SpawnItems : INetMessage {
-        public int _mode = -1;
+        public Enums.ShopMode _mode = Enums.ShopMode.Uninitialized;
         public uint _connectionID = 0;
 
         public void Serialize(NetworkWriter writer) {
-            writer.Write(_mode);
+            writer.Write((int)_mode);
             writer.Write(_connectionID);
         }
 
         public void Deserialize(NetworkReader reader) {
-            _mode = reader.ReadInt32();
+            _mode = (Enums.ShopMode)reader.ReadInt32();
             _connectionID = reader.ReadUInt32();
         }
 
@@ -64,11 +64,12 @@ namespace StartingItemsGUI
     }
 
     public class GameManager : MonoBehaviour {
-        static public Dictionary<uint, List<bool>> status = new Dictionary<uint, List<bool>>();
-        static public Dictionary<uint, int> modes = new Dictionary<uint, int>();
-        static public Dictionary<uint, Dictionary<int, int>> items = new Dictionary<uint, Dictionary<int, int>>();
-        static public Dictionary<uint, CharacterMaster> characterMasters = new Dictionary<uint, CharacterMaster>();
-        static public List<Coroutine> spawnItemCoroutines = new List<Coroutine>();
+        // Remove these.
+        static public Dictionary<uint, List<bool>> status = new();
+        static public Dictionary<uint, int> modes = new();
+        static public Dictionary<uint, Dictionary<StartingItem, uint>> items = new();
+        static public Dictionary<uint, CharacterMaster> characterMasters = new();
+        static public List<Coroutine> spawnItemCoroutines = new();
 
         static public void SetCharacterMaster(uint netId, CharacterMaster characterMaster) {
             characterMasters.Add(netId, characterMaster);
@@ -76,34 +77,41 @@ namespace StartingItemsGUI
             SpawnItems(netId);
         }
 
-        static public void SendItems(NetworkUser networkUser) {
-            Data.RefreshInfo(networkUser.localUser.userProfile.fileName);
-            if (Data.modEnabled) {
-                Dictionary<int, int> itemsPurchased = new Dictionary<int, int>();
-                if (Data.mode == DataEarntConsumable.mode) {
-                    itemsPurchased = DataEarntConsumable.itemsPurchased[Data.profile[Data.mode]];
-                } else if (Data.mode == DataEarntPersistent.mode) {
-                    itemsPurchased = DataEarntPersistent.itemsPurchased[Data.profile[Data.mode]];
-                } else if (Data.mode == DataFree.mode) {
-                    itemsPurchased = DataFree.itemsPurchased[Data.profile[Data.mode]];
-                } else if (Data.mode == DataRandom.mode) {
-                    itemsPurchased = DataRandom.GenerateRandomItemList();
+        static public void SendItems(NetworkUser networkUser)
+        {
+            if (StartingItemsGUI.Instance.ModEnabled)
+            {
+                var startingItems = StartingItemsGUI.Instance.CurrentProfile.GetStartingItems();
+
+                if (StartingItemsGUI.Instance.CurrentProfile.ShopMode != Enums.ShopMode.Random)
+                {
+                    foreach (var startingItem in startingItems)
+                    {
+                        var itemPurchased = new ItemPurchased
+                        {
+                            _itemID = startingItem.Key.ID,
+                            _itemCount = startingItem.Value,
+                            _connectionID = networkUser.netId.Value
+                        };
+                        itemPurchased.Send(R2API.Networking.NetworkDestination.Server);
+                    }
+                    SpawnItems spawnItems = new(){ _mode = StartingItemsGUI.Instance.CurrentProfile.ShopMode, _connectionID = networkUser.netId.Value };
+                    spawnItems.Send(R2API.Networking.NetworkDestination.Server);
                 }
-                foreach (int itemID in itemsPurchased.Keys) {
-                    ItemPurchased itemPurchased = new ItemPurchased { _itemID = itemID, _itemCount = itemsPurchased[itemID], _connectionID = networkUser.netId.Value };
-                    itemPurchased.Send(R2API.Networking.NetworkDestination.Server);
-                }
-                SpawnItems spawnItems = new SpawnItems { _mode = Data.mode, _connectionID = networkUser.netId.Value };
-                spawnItems.Send(R2API.Networking.NetworkDestination.Server);
             }
         }
 
-        static public void ReceiveItem(ItemPurchased givenItem) {
-            if (givenItem._itemID != -1 && givenItem._itemCount != 0 && givenItem._connectionID != 0) {
-                if (!status[givenItem._connectionID][0]) {
-                    if (!items[givenItem._connectionID].ContainsKey(givenItem._itemID)) {
-                        if (Data.ItemExists(givenItem._itemID)) {
-                            items[givenItem._connectionID].Add(givenItem._itemID, givenItem._itemCount);
+        public static void ReceiveItem(ItemPurchased givenItem)
+        {
+            if (givenItem._itemID != 0 && givenItem._itemCount != 0 && givenItem._connectionID != 0)
+            {
+                if (!status[givenItem._connectionID][0])
+                {
+                    if (!items[givenItem._connectionID].ContainsKey(new StartingItem(givenItem._itemID)))
+                    {
+                        if (Data.ItemExists(new StartingItem(givenItem._itemID)))
+                        {
+                            items[givenItem._connectionID].Add(new StartingItem(givenItem._itemID), givenItem._itemCount);
                         }
                     }
                 }
@@ -111,9 +119,9 @@ namespace StartingItemsGUI
         }
 
         static public void AttemptSpawnItems(SpawnItems spawnInfo) {
-            if (spawnInfo._mode != -1 && spawnInfo._connectionID != 0) {
+            if (spawnInfo._mode != Enums.ShopMode.Uninitialized && spawnInfo._connectionID != 0) {
                 if (!status[spawnInfo._connectionID][0]) {
-                    modes[spawnInfo._connectionID] = spawnInfo._mode;
+                    modes[spawnInfo._connectionID] = (int)spawnInfo._mode;
                     status[spawnInfo._connectionID][0] = true;
                     SpawnItems(spawnInfo._connectionID);
                 }
@@ -125,7 +133,7 @@ namespace StartingItemsGUI
             if (status[connectionID][0] && status[connectionID][1]) {
                 if (!status[connectionID][2]) {
                     status[connectionID][2] = true;
-                    if (Data.modEnabled && Data.mode == modes[connectionID]) {
+                    if (StartingItemsGUI.Instance.ModEnabled && (int)StartingItemsGUI.Instance.CurrentProfile.ShopMode == modes[connectionID]) {
                         spawnItemCoroutines.Add(StartingItemsGUI.Instance.StartCoroutine(SpawnItemsCoroutine(connectionID)));
                     }
                 }
@@ -137,24 +145,30 @@ namespace StartingItemsGUI
                 yield return new UnityEngine.WaitUntil(() => characterMasters[connectionID].GetBody() != null);
             }
 
-            foreach (int itemID in items[connectionID].Keys) {
-                for (int itemCount = 0; itemCount < items[connectionID][itemID]; itemCount++) {
-                    if (Data.allItemIDs.ContainsKey(itemID)) {
-                        characterMasters[connectionID].GetBody().inventory.GiveItem(Data.allItemIDs[itemID]);
-                    } else if (Data.allEquipmentIDs.ContainsKey(itemID)) {
-                        characterMasters[connectionID].GetBody().inventory.SetEquipmentIndex(Data.allEquipmentIDs[itemID]);
+            foreach (var itemID in items[connectionID].Keys)
+            {
+                for (var itemCount = 0; itemCount < items[connectionID][itemID]; itemCount++)
+                {
+                    if (itemID.IsItemIndex)
+                    {
+                        characterMasters[connectionID].GetBody().inventory.GiveItem(itemID.ItemIndex);
+                    }
+                    else if (itemID.IsEquipmentIndex)
+                    {
+                        characterMasters[connectionID].GetBody().inventory.SetEquipmentIndex(itemID.EquipmentIndex);
                     }
                 }
-                PickupIndex pickupIndex = new PickupIndex();
+                PickupIndex pickupIndex = new();
                 bool pickupCreated = false;
-                if (Data.allItemIDs.ContainsKey(itemID)) {
-                    pickupCreated = true;
-                    pickupIndex = PickupCatalog.FindPickupIndex(Data.allItemIDs[itemID]);
-                }
-                else if (Data.allEquipmentIDs.ContainsKey(itemID))
+                if (itemID.IsItemIndex)
                 {
                     pickupCreated = true;
-                    pickupIndex = PickupCatalog.FindPickupIndex(Data.allEquipmentIDs[itemID]);
+                    pickupIndex = PickupCatalog.FindPickupIndex(itemID.ItemIndex);
+                }
+                else if (itemID.IsEquipmentIndex)
+                {
+                    pickupCreated = true;
+                    pickupIndex = PickupCatalog.FindPickupIndex(itemID.EquipmentIndex);
                 }
 
                 if (pickupCreated)
@@ -162,19 +176,18 @@ namespace StartingItemsGUI
                     Chat.AddPickupMessage(characterMasters[connectionID].GetBody(), PickupCatalog.GetPickupDef(pickupIndex).nameToken, PickupCatalog.GetPickupDef(pickupIndex).baseColor, System.Convert.ToUInt32(items[connectionID][itemID]));
                 }
             }
-            if (Data.mode == DataEarntConsumable.mode) {
+            if (StartingItemsGUI.Instance.CurrentProfile.ShopMode == Enums.ShopMode.EarnedConsumable) {
                 Connection connection = new Connection { _connectionID = connectionID };
                 connection.Send(R2API.Networking.NetworkDestination.Clients);
             }
         }
 
         static public void FinalizePurchases(Connection connection) {
-            if (Data.mode == DataEarntConsumable.mode) {
+            if (StartingItemsGUI.Instance.CurrentProfile.ShopMode == Enums.ShopMode.EarnedConsumable) {
                 foreach (NetworkUser networkUser in NetworkUser.readOnlyInstancesList) {
-                    if (networkUser.netId.Value == (uint)connection._connectionID) {
+                    if (networkUser.netId.Value == connection._connectionID) {
                         if (networkUser.isLocalPlayer) {
-                            Data.RefreshInfo(networkUser.localUser.userProfile.fileName);
-                            DataEarntConsumable.FinalizePurchases();
+
                         }
                         break;
                     }

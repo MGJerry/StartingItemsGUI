@@ -5,11 +5,12 @@ namespace StartingItemsGUI
 {
     public class Resources : MonoBehaviour
     {
-        static public List<Sprite> tierTextures = new List<Sprite>();
-        static public List<Sprite> panelTextures = new List<Sprite>();
-        static public List<TMPro.TMP_FontAsset> fonts = new List<TMPro.TMP_FontAsset>();
+        public static List<Sprite> tierTextures = new();
+        public static List<Sprite> panelTextures = new();
+        public static List<TMPro.TMP_FontAsset> fonts = new();
 
-        static private List<string> tierTextureNames = new List<string>() {
+        private static readonly List<string> tierTextureNames = new()
+        {
             "textier1bgicon.png",
             "textier2bgicon.png",
             "textier3bgicon.png",
@@ -17,7 +18,8 @@ namespace StartingItemsGUI
             "texlunarbgicon.png",
             "texequipmentbgicon.png",
         };
-        static private List<string> panelTextureNames = new List<string>() {
+        private static readonly List<string> panelTextureNames = new()
+        {
             "texUICleanButton.png",
             "texUIOutlineOnly.png",
             "texUIHighlightBoxOutlineThick.png",
@@ -29,11 +31,13 @@ namespace StartingItemsGUI
             "texUIBottomUpFade.png",
             "texUITopDownFade.png",
         };
-        static private List<string> fontNames = new List<string>() {
+        private static readonly List<string> fontNames = new()
+        {
             "BOMBARD_ SDF.asset",
         };
 
-        static public List<Color> colours = new List<Color>() {
+        public static readonly List<Color> colours = new()
+        {
             new Color(193f / 255f, 193f / 255f, 193f / 255f),
             new Color(88f / 255f, 149f / 255f, 88f / 255f),
             new Color(142f / 255f, 50f / 255f, 50f / 255f),
@@ -43,24 +47,26 @@ namespace StartingItemsGUI
             new Color(0 / 255f, 0 / 255f, 0f / 255f),
         };
 
-        // The textures and fonts lists will be populated.
-        static public void LoadResources()
+        /// <summary>
+        /// Load all the resources from the assets file.
+        /// </summary>
+        public static void LoadResources()
         {
             var pluginDirectory = System.IO.Directory.GetParent(StartingItemsGUI.Instance.PInfo.Location);
             var assetLocation = System.IO.Path.Combine(pluginDirectory.FullName, "Resources", "StartingItemsGUIAssets");
             var fileAssets = UnityEngine.AssetBundle.LoadFromFile(assetLocation);
 
-            foreach (string tierTextureName in tierTextureNames)
+            foreach (var tierTextureName in tierTextureNames)
             {
                 tierTextures.Add(fileAssets.LoadAsset<Sprite>(tierTextureName));
             }
 
-            foreach (string panelTextureName in panelTextureNames)
+            foreach (var panelTextureName in panelTextureNames)
             {
                 panelTextures.Add(fileAssets.LoadAsset<Sprite>(panelTextureName));
             }
 
-            foreach (string fontName in fontNames)
+            foreach (var fontName in fontNames)
             {
                 fonts.Add(fileAssets.LoadAsset<TMPro.TMP_FontAsset>(fontName));
             }
@@ -71,6 +77,11 @@ namespace StartingItemsGUI
             Log.LogInfo($"Tier texture count: {tierTextures.Count}");
             Log.LogInfo($"Panel texture count: {panelTextures.Count}");
             Log.LogInfo($"Font count: {fonts.Count}");
+
+            // Ensure we have loaded all the resources correctly.
+            System.Diagnostics.Debug.Assert(tierTextures.Count == tierTextureNames.Count);
+            System.Diagnostics.Debug.Assert(panelTextures.Count == panelTextureNames.Count);
+            System.Diagnostics.Debug.Assert(fonts.Count == fontNames.Count);
         }
     }
 }

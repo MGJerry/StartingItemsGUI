@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-	<LangVersion>latest</LangVersion>
+    <TargetFramework>netstandard2.1</TargetFramework>
+	  <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -10,13 +9,13 @@
     <Authors>SzymonJ99</Authors>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <OutputPath>Build\Debug</OutputPath>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <OutputPath>Build\Release</OutputPath>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
@@ -24,15 +23,15 @@
 
   <ItemGroup>
     <PackageReference Include="R2API" Version="4.3.21" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="6.0.4" GeneratePathProperty="true" />
+    
     <Content Include="Resources\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Deployment\Icon\" />
-  </ItemGroup>
+  <!-- This took me hours to figure out. So intuitive :) -->
+  <Target Name="CopyJSONLibrary" AfterTargets="Build">
+    <Copy SourceFiles="$(PkgSystem_Text_Json)\lib\netstandard2.0\System.Text.Json.dll" DestinationFolder="$(OutDir)" />
+  </Target>
 </Project>

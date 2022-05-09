@@ -5,61 +5,33 @@ namespace StartingItemsGUI
     {
     public class DataFree : MonoBehaviour
     {
-        static public List<Dictionary<int, int>> itemsPurchased = new List<Dictionary<int, int>>();
-        static public int mode = 2;
-        static private string itemsPurchasedFile = "ItemsFree.txt";
-
-        static public List<string> itemsPurchasedName = new List<string>() { "itemsPurchasedFree" };
-
-
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-        static public void RefreshInfo(Dictionary<string, string> configGlobal, Dictionary<string, string> configProfile) {
-            Data.GetItemsPurchased(configProfile, itemsPurchasedName, itemsPurchasedFile, itemsPurchased, -1, mode);
+        public static void BuyItem(StartingItem startingItem, uint quantity)
+        {
+            Log.LogDebug($"Buying item: {startingItem} for Free mode.");
+            StartingItemsGUI.Instance.CurrentProfile.PurchaseItem(startingItem, quantity);
+            UIDrawer.Refresh();
         }
 
-        static public void VerifyItemsPurchased() {
-
-        }
-
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-        static public void BuyItem(int itemID) {
-            bool boughtItem = false;
-            for (int transactionIndex = 0; transactionIndex < Data.buyMultiplier; transactionIndex++) {
-                if (!itemsPurchased[Data.profile[Data.mode]].ContainsKey(itemID)) {
-                    itemsPurchased[Data.profile[Data.mode]].Add(itemID, 0);
-                }
-                itemsPurchased[Data.profile[Data.mode]][itemID] += 1;
-                boughtItem = true;
-            }
-            if (boughtItem) {
-                Data.MakeDirectoryExist();
-                Data.SaveConfigProfile();
-                UIDrawer.Refresh();
-            }
-}
-
-        static public void SellItem(int itemID) {
+        public static void SellItem(StartingItem startingItem, uint quantity)
+        {
             bool soldItem = false;
-            for (int transactionIndex = 0; transactionIndex < Data.buyMultiplier; transactionIndex++) {
-                if (itemsPurchased[Data.profile[Data.mode]].ContainsKey(itemID)) {
-                    itemsPurchased[Data.profile[Data.mode]][itemID] -= 1;
-                    if (itemsPurchased[Data.profile[Data.mode]][itemID] == 0) {
-                        itemsPurchased[Data.profile[Data.mode]].Remove(itemID);
-                    }
-                    soldItem = true;
-                } else {
+            uint counter;
+            for (counter = 1; counter <= quantity; counter++)
+            {
+                if (!StartingItemsGUI.Instance.CurrentProfile.GetStartingItems().ContainsKey(startingItem))
+                {
                     break;
                 }
+
+                if (StartingItemsGUI.Instance.CurrentProfile.GetStartingItems()[startingItem] <= counter)
+                {
+                    break;
+                }
+                soldItem = true;
             }
-            if (soldItem) {
-                Data.MakeDirectoryExist();
-                Data.SaveConfigProfile();
+            if (soldItem)
+            {
+                StartingItemsGUI.Instance.CurrentProfile.SellItem(startingItem, counter);
                 UIDrawer.Refresh();
             }
         }

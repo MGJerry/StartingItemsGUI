@@ -3,12 +3,26 @@ using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections.Generic;
+using System.Security;
+using System.Security.Permissions;
 
+// SecurityPermision set to minimum and SkipVerification set to true
+// for skipping access modifiers check from the mono JIT
+// The same attributes are added to the assembly when ticking
+// Unsafe Code in the Project settings
+// This is done here to allow an explanation of the trick and
+// not in an outside source you could potentially miss.
+// https://github.com/risk-of-thunder/R2API/blob/master/R2API/AssemblyInfo.cs#L4-L14
+
+#pragma warning disable CS0618 // Type or member is obsolete
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+#pragma warning restore CS0618 // Type or member is obsolete
+[module: UnverifiableCode]
 namespace StartingItemsGUI
 {
     [BepInEx.BepInDependency(R2API.R2API.PluginGUID)]
     [BepInEx.BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [R2API.Utils.R2APISubmoduleDependency(nameof(R2API.ItemAPI), nameof(R2API.PrefabAPI), nameof(R2API.Networking.NetworkingAPI), "ResourcesAPI")]
+    [R2API.Utils.R2APISubmoduleDependency(nameof(R2API.ItemAPI), nameof(R2API.Networking.NetworkingAPI), "ResourcesAPI")]
     public class StartingItemsGUI : BaseUnityPlugin
     {
         public const string PluginAuthor = "szymonj99";
@@ -18,20 +32,23 @@ namespace StartingItemsGUI
 
         public BepInEx.PluginInfo PInfo { get; protected set; } = null;
 
-        static public StartingItemsGUI Instance { get; protected set; } = null;
+        /// <summary>
+        /// The current instance of the mod.
+        /// This stores information such as the current StartingItemsGUI Profile (not to be confused with loadout, or RoR2 profile.)
+        /// </summary>
+        public static StartingItemsGUI Instance { get; protected set; } = null;
 
-        List<Coroutine> characterMasterCoroutines = new List<Coroutine>();
+        // If we move the SetupHooks function away from here, this might have to be made public. We'll see!
+        public Profile CurrentProfile { get; protected set; } = null;
 
-        void OnAwake()
-        {
-            Data.UpdateConfigLocations();
-            Instance.gameObject.AddComponent<Util>();
-            R2API.Networking.NetworkingAPI.RegisterMessageType<Connection>();
-            R2API.Networking.NetworkingAPI.RegisterMessageType<ItemPurchased>();
-            R2API.Networking.NetworkingAPI.RegisterMessageType<SpawnItems>();
-        }
+        public bool ModEnabled { get { return ConfigManager.ModEnabled.Value; } set { ConfigManager.ModEnabled.Value = value; } }
 
-        void SceneLoadSetup()
+        // In the future, it might be nice adding in a toggle for this at runtime (maybe in debug build only).
+        public bool ShowAllItems { get { return ConfigManager.ShowAllItems.Value; } }
+
+        List<Coroutine> characterMasterCoroutines = new();
+
+        private void SceneLoadSetup()
         {
             UIDrawer.CreateCanvas();
             UIVanilla.GetObjectsFromScene();
@@ -46,7 +63,14 @@ namespace StartingItemsGUI
             Instance.PInfo = Info;
             Resources.LoadResources();
             Instance.SetupHooks();
-            Instance.OnAwake();
+
+            ConfigManager.InitConfig();
+
+            // I wonder, is this even necessary?
+            Instance.gameObject.AddComponent<Util>();
+            R2API.Networking.NetworkingAPI.RegisterMessageType<Connection>();
+            R2API.Networking.NetworkingAPI.RegisterMessageType<ItemPurchased>();
+            R2API.Networking.NetworkingAPI.RegisterMessageType<SpawnItems>();
         }
 
         // It might look better if we were to move these to a dedicated `EventManager` class.
@@ -56,7 +80,6 @@ namespace StartingItemsGUI
             SetupUIHooks();
             SetupRunStartGlobalHook();
             SetupPointsHooks();
-            SetupItemCatalogueHook();
         }
 
         private void SetupPreGameHook()
@@ -64,8 +87,8 @@ namespace StartingItemsGUI
             // Between runs, do some cleaning.
             On.RoR2.PreGameController.OnEnable += (orig, preGameController) =>
             {
-                Data.localUsers.Clear();
-                Data.SetForcedMode(-1);
+                Log.LogInfo("OnEnable called");
+
                 GameManager.ClearItems();
 
                 orig(preGameController);
@@ -73,12 +96,13 @@ namespace StartingItemsGUI
         }
 
         // I think this can get reworked soon.
+        // Additional info: https://github.com/szymonj99/StartingItemsGUI/issues/18#issuecomment-1100785233
         private void SetupRunStartGlobalHook()
         {
             RoR2.Run.onRunStartGlobal += (run) =>
             {
-                Data.RefreshInfo();
-                Data.SetForcedMode(Data.mode);
+                Log.LogInfo("onRunStartGlobal called");
+
                 foreach (var coroutine in characterMasterCoroutines)
                 {
                     if (coroutine != null)
@@ -91,8 +115,8 @@ namespace StartingItemsGUI
                 {
                     foreach (NetworkUser networkUser in RoR2.NetworkUser.readOnlyInstancesList)
                     {
-                        GameManager.status.Add(networkUser.netId.Value, new List<bool>() { false, false, false });
-                        GameManager.items.Add(networkUser.netId.Value, new Dictionary<int, int>());
+                        GameManager.status.Add(networkUser.netId.Value, new() { false, false, false });
+                        GameManager.items.Add(networkUser.netId.Value, new());
                         GameManager.modes.Add(networkUser.netId.Value, -1);
                         characterMasterCoroutines.Add(StartCoroutine(GetMasterController(networkUser)));
                     }
@@ -103,7 +127,6 @@ namespace StartingItemsGUI
                     {
                         if (networkUser.isLocalPlayer)
                         {
-                            Data.localUsers.Add(networkUser.localUser.userProfile.fileName);
                             GameManager.SendItems(networkUser);
                         }
                     }
@@ -114,13 +137,22 @@ namespace StartingItemsGUI
         {
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += (scene, mode) =>
             {
-                if (scene.name == "title")
+                Log.LogInfo("sceneLoaded called");
+
+                if (scene.name != "title")
                 {
-                    SceneLoadSetup();
-                    Data.localUsers.Clear();
-                    Data.SetForcedMode(-1);
-                    GameManager.ClearItems();
+                    return;
                 }
+
+                
+                if (RoR2.PlatformSystems.saveSystem.loggedInProfiles.Count > 0)
+                {
+                    var playerName = RoR2.PlatformSystems.saveSystem.loggedInProfiles[0];
+                    StartingItemsGUI.Instance.CurrentProfile = new Profile(playerName);
+                }
+
+                SceneLoadSetup();
+                GameManager.ClearItems();
             };
 
             On.RoR2.UI.ScrollToSelection.ScrollToRect += (scrollToRect, scrollToSelection, transform) =>
@@ -160,26 +192,19 @@ namespace StartingItemsGUI
         {
             RoR2.Run.onClientGameOverGlobal += (run, runReport) =>
             {
-                DataEarntConsumable.UpdateUserPointsStages(run, runReport);
-                DataEarntPersistent.UpdateUserPointsStages(run, runReport);
+                Log.LogInfo("onClientGameOverGlobal called");
+
+                DataEarnedConsumable.UpdateUserPointsStages(run, runReport);
+                DataEarnedPersistent.UpdateUserPointsStages(run, runReport);
             };
 
             On.RoR2.CharacterBody.OnDeathStart += (orig, characterBody) =>
             {
-                DataEarntConsumable.UpdateUserPointsBoss(characterBody.name);
-                DataEarntPersistent.UpdateUserPointsBoss(characterBody.name);
+                Log.LogInfo("OnDeathStart called");
+
+                DataEarnedConsumable.UpdateUserPointsBoss(characterBody.name);
+                DataEarnedPersistent.UpdateUserPointsBoss(characterBody.name);
                 orig(characterBody);
-            };
-        }
-
-        private void SetupItemCatalogueHook()
-        {
-            RoR2.RoR2Application.onLoad += () =>
-            {
-                Log.LogInfo("OnLoad Called.");
-
-                // We could further delay this until we are sure all mods are initialised.
-                Data.PopulateItemCatalogues();
             };
         }
 
@@ -188,6 +213,12 @@ namespace StartingItemsGUI
             yield return new UnityEngine.WaitUntil(() => networkUser.masterController != null);
 
             GameManager.SetCharacterMaster(networkUser.netId.Value, networkUser.masterController.master);
+        }
+
+        public void ToggleEnabled()
+        {
+            ModEnabled = !ModEnabled;
+            UIDrawer.Refresh();
         }
     }
 }

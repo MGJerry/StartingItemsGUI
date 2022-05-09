@@ -106,74 +106,6 @@ namespace StartingItemsGUI
             return new() { a, b, c, max, min };
         }
 
-        static public string TrimString(string givenString) {
-            if (givenString.Length > 0) {
-                return givenString.Substring(0, givenString.Length - 1);
-            }
-            return "";
-        }
-
-        static public string MultilineToSingleLine(string givenFallback, string givenPath) {
-            if (givenPath != "null") {
-            if (File.Exists(givenPath)) {
-                    StreamReader reader = new StreamReader(givenPath);
-                    string line = "";
-                    while (reader.Peek() >= 0) {
-                        string newString = reader.ReadLine().Replace(Data.splitChar, Data.dictChar);
-                        line += newString + Data.splitChar;
-                    }
-                    reader.Close();
-                    line = TrimString(line);
-                    return line;
-                }
-        }
-            return givenFallback;
-        }
-
-        static public string ListToString(List<int> givenList) {
-            string newString = "";
-            foreach (int item in givenList) {
-                newString += item.ToString() + Data.splitChar;
-            }
-            newString = TrimString(newString);
-            return newString;
-        }
-
-        static public string DictToString(List<Dictionary<int, int>> givenList) {
-            string newString = "";
-            foreach (Dictionary<int, int> item in givenList) {
-                foreach (int key in item.Keys) {
-                    newString += key.ToString() + Data.dictChar + item[key].ToString() + Data.splitChar;
-                }
-                newString = TrimString(newString);
-                newString += Data.profileChar;
-            }
-            newString = TrimString(newString);
-            return newString;
-        }
-
-        static public string GetConfig(Dictionary<string, string> config, List<string> keys) {
-            foreach (string key in keys) {
-                if (config.ContainsKey(key)) {
-                    return config[key];
-                }
-            }
-            return "";
-        }
-
-        static string MapHierarchy(Transform givenTransform, int givenDepth, string givenTree) {
-            string workingString = "";
-            for (int spaceNumber = 0; spaceNumber < givenDepth * 4; spaceNumber++) {
-                workingString += " ";
-            }
-            workingString += givenTransform.gameObject.name + "\n";
-            givenTree += workingString;
-            for (int childIndex = 0; childIndex < givenTransform.childCount; childIndex++) {
-                givenTree = MapHierarchy(givenTransform.GetChild(childIndex), givenDepth + 1, givenTree);
-            }
-            return givenTree;
-        }
-
         static public bool GetObjectFromHierarchy(ref Transform desiredObject, List<string> hierarchy, int hierarchyIndex, Transform parent) {
             bool childFound = false;
             if (hierarchyIndex == 0) {
@@ -201,16 +133,6 @@ namespace StartingItemsGUI
                 }
             }
             return false;
-        }
-
-        public static void MakeDirectoryExist(string location)
-        {
-            Log.LogInfo("Checking if directory exists: " + location);
-
-            if (!System.IO.Directory.Exists(location))
-            {
-                System.IO.Directory.CreateDirectory(location);
-            }
         }
     }
 }

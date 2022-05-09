@@ -2,11 +2,19 @@
 
 namespace StartingItemsGUI
 {
-    public class UIDrawerFree : MonoBehaviour
+    public class UIDrawerEarnedConsumable : MonoBehaviour
     {
+        public static void DrawUI()
+        {
+            foreach (var startingItem in UIDrawer.itemTexts.Keys)
+            {
+                UIDrawer.itemTexts[startingItem][1].text = Data.GetStartingItemPrice(startingItem).ToString();
+            }
+        }
+
         public static void Refresh()
         {
-            UIDrawer.pointText.text = "";
+            UIDrawer.pointText.text = $"CREDITS: {StartingItemsGUI.Instance.CurrentProfile.Credits} ¢";
 
             foreach (var startingItem in UIDrawer.itemTexts.Keys)
             {

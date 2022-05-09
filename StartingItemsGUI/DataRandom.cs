@@ -7,86 +7,58 @@ namespace StartingItemsGUI
 {
     public class DataRandom : MonoBehaviour
     {
-        static public int mode = 3;
-        static public int pointsMethod;
-        static public int pointsLocked;
-        static private List<int> itemCountRange = new List<int>() { 10, 5, 2, 4, 3, 1 };
-
-        static public int pointsMethodDefault = 0;
-        static public int pointsLockedDefault = 1000;
-
-        static public List<string> pointsMethodName = new List<string>() { "randomCreditsMethod" };
-        static public List<string> pointsLockedName = new List<string>() { "randomCreditsLocked" };
-
+        // Rework this.
+        static private List<int> itemCountRange = new() { 10, 5, 2, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
         //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-        static public void RefreshInfo(Dictionary<string, string> configGlobal, Dictionary<string, string> configProfile) {
-            GetConfig(configGlobal);
-        }
-
-        static public void VerifyItemsPurchased() {
-
-        }
-
-        static void GetConfig(Dictionary<string, string> config) {
-            pointsMethod = Data.ParseInt(pointsMethodDefault, Util.GetConfig(config, pointsMethodName));
-            pointsLocked = Data.ParseInt(pointsLockedDefault, Util.GetConfig(config, pointsLockedName));
-        }
-
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-        static public void BuyItem(int itemID) {
-
-        }
-
-        static public void SellItem(int itemID) {
-
-        }
-
-        static public Dictionary<int, int> GenerateRandomItemList() {
-            List<int> storeItems = UIDrawer.GetStoreItems();
-            Dictionary<int, int> itemPrices = new Dictionary<int, int>();
-            List<int> allPrices = new List<int>() {
-                Data.tier1Price,
-                Data.tier2Price,
-                Data.tier3Price,
-                Data.bossPrice,
-                Data.lunarPrice,
-                Data.equipmentPrice,
-                Data.lunarEquipmentPrice,
-                Data.eliteEquipmentPrice,
+        public static Dictionary<StartingItem, uint> GenerateRandomItemList()
+        {
+            List<StartingItem> storeItems = UIDrawer.GetStoreItems();
+            var itemPrices = new Dictionary<StartingItem, uint>();
+            List<uint> allPrices = new()
+            {
+                ConfigManager.TierOnePrice.Value,
+                ConfigManager.TierTwoPrice.Value,
+                ConfigManager.TierThreePrice.Value,
+                ConfigManager.BossPrice.Value,
+                ConfigManager.LunarPrice.Value,
+                ConfigManager.EquipmentPrice.Value,
+                ConfigManager.LunarEquipmentPrice.Value,
+                ConfigManager.EliteEquipmentPrice.Value
             };
-            List<int> equipmentPrices = new List<int>() {
-                Data.equipmentPrice,
-                Data.lunarEquipmentPrice,
-                Data.eliteEquipmentPrice,
+            List<uint> equipmentPrices = new()
+            {
+                ConfigManager.EquipmentPrice.Value,
+                ConfigManager.LunarEquipmentPrice.Value,
+                ConfigManager.EliteEquipmentPrice.Value
             };
-            foreach (int itemID in storeItems) {
-                int itemPrice = Data.GetItemPrice(itemID);
-                itemPrices.Add(itemID, itemPrice);
+
+            foreach (var startingItem in storeItems)
+            {
+                var itemPrice = Data.GetStartingItemPrice(startingItem);
+                itemPrices.Add(startingItem, itemPrice);
             }
-            int points = GetPoints();
-            Dictionary<int, int> itemsPurchased = new Dictionary<int, int>();
+
+            uint points = 1000; // Let's change this in the future.
+            Dictionary<StartingItem, uint> itemsPurchased = new();
             bool equipmentGiven = false;
-            System.Random random = new System.Random();
+            var random = new System.Random();
 
             ReduceItemList(points, equipmentGiven, allPrices, equipmentPrices, itemPrices);
             while (allPrices.Count > 0) {
-                List<int> availableItems = itemPrices.Keys.ToList();
-                int nextItem = availableItems[random.Next(availableItems.Count)];
+                var availableItems = itemPrices.Keys.ToList();
+                var nextItem = availableItems[random.Next(availableItems.Count)];
                 if (!itemsPurchased.ContainsKey(nextItem)) {
                     itemsPurchased.Add(nextItem, 0);
                 }
-                int itemPrice = Data.GetItemPrice(nextItem);
-                int itemsGiven = random.Next(1, Mathf.Min(Mathf.FloorToInt(points / itemPrice) + 1 , GetCountRange(nextItem) + 1));
+                uint itemPrice = Data.GetStartingItemPrice(nextItem);
+                uint itemsGiven = (uint)random.Next(1, Mathf.Min(Mathf.FloorToInt(points / itemPrice) + 1 , GetCountRange(nextItem) + 1));
                 itemsPurchased[nextItem] += itemsGiven;
                 points -= itemPrice * itemsGiven;
-                if (Data.allEquipmentIDs.ContainsKey(nextItem)) {
+                if (nextItem.IsEquipmentIndex)
+                {
                     equipmentGiven = true;
                 }
                 ReduceItemList(points, equipmentGiven, allPrices, equipmentPrices, itemPrices);
@@ -95,7 +67,15 @@ namespace StartingItemsGUI
             return itemsPurchased;
         }
 
-        static void ReduceItemList(int points, bool equipmentGiven, List<int> allPrices, List<int> equipmentPrices, Dictionary<int, int> itemPrices) {
+        /// <summary>
+        /// ? TODO: Figure out wtf this mystery function does.
+        /// </summary>
+        /// <param name="points"></param>
+        /// <param name="equipmentGiven"></param>
+        /// <param name="allPrices"></param>
+        /// <param name="equipmentPrices"></param>
+        /// <param name="itemPrices"></param>
+        static void ReduceItemList(uint points, bool equipmentGiven, List<uint> allPrices, List<uint> equipmentPrices, Dictionary<StartingItem, uint> itemPrices) {
             bool cullList = false;
             List<int> indexesToRemove = new List<int>();
             for (int priceIndex = 0; priceIndex < allPrices.Count; priceIndex++) {
@@ -110,7 +90,7 @@ namespace StartingItemsGUI
                 allPrices.RemoveAt(indexToRemove);
             }
             if (equipmentGiven) {
-                foreach (int equipmentPrice in equipmentPrices) {
+                foreach (var equipmentPrice in equipmentPrices) {
                     if (allPrices.Contains(equipmentPrice)) {
                         allPrices.Remove(equipmentPrice);
                         cullList = true;
@@ -119,33 +99,31 @@ namespace StartingItemsGUI
             }
 
             if (cullList) {
-                List<int> itemIDsOld = new List<int>();
-                foreach (int itemID in itemPrices.Keys) {
+                List<StartingItem> itemIDsOld = new();
+                foreach (var itemID in itemPrices.Keys)
+                {
                     itemIDsOld.Add(itemID);
                 }
-                foreach (int itemID in itemIDsOld) {
-                    if (points < itemPrices[itemID] || (Data.allEquipmentIDs.ContainsKey(itemID) && equipmentGiven)) {
+                foreach (var itemID in itemIDsOld)
+                {
+                    if (points < itemPrices[itemID] || (itemID.IsEquipmentIndex && equipmentGiven))
+                    {
                         itemPrices.Remove(itemID);
                     }
                 }
             }
         }
 
-        static int GetCountRange(int itemID) {
-            if (Data.allEquipmentIDs.ContainsKey(itemID)) {
+        static int GetCountRange(StartingItem startingItem)
+        {
+            if (startingItem.IsEquipmentIndex)
+            {
                 return itemCountRange[5];
-            } else {
-                return itemCountRange[Data.GetItemTier(itemID)];
             }
-        }
-
-        static public int GetPoints() {
-            if (pointsMethod == 0) {
-                return pointsLocked;
-            } else if (pointsMethod == 1) {
-                return DataEarntPersistent.userPointsBackup;
+            else
+            {
+                return itemCountRange[(int)Data.GetItemTier(startingItem)];
             }
-            return 0;
         }
     }
 }

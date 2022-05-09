@@ -6,8 +6,9 @@ namespace StartingItemsGUI
 {
     public class ScrollCreator : MonoBehaviour
     {
-        static public GameObject CreateScroll(RectTransform rootTransform, int rows, int textCount, List<int> items, float width, Vector3 position, Dictionary<int, List<Image>> images, Dictionary<int, List<TMPro.TextMeshProUGUI>> texts) {
-            Vector2 size = new Vector2();
+        public static GameObject CreateScroll(RectTransform rootTransform, int rows, int textCount, List<StartingItem> items, float width, Vector3 position, Dictionary<StartingItem, List<Image>> images, Dictionary<StartingItem, List<TMPro.TextMeshProUGUI>> texts)
+        {
+            Vector2 size = new();
             size.x = width;
             size.y = (UIConfig.itemButtonWidth + textCount * UIConfig.itemTextHeight + UIConfig.itemPaddingOuter * 2) * rows + UIConfig.scrollPadding * 2 + UIConfig.panelPadding * 2;
             GameObject itemsScroll = ElementCreator.SpawnImageSize(new List<Image>(), rootTransform.gameObject, null, new Color(0, 0, 0, 0), new Vector2(0, 1), size, position);
