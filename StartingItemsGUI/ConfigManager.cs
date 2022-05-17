@@ -14,9 +14,6 @@
 
         public static BepInEx.Configuration.ConfigEntry<bool> ShowAllItems { get; set; }
 
-        public static BepInEx.Configuration.ConfigEntry<Enums.ShopMode> CurrentShopMode { get; set; }
-        public static BepInEx.Configuration.ConfigEntry<Enums.EarningMode> CurrentEarningMode { get; set; }
-
         // These could potentially be consolidated into one dictionary.
         public static BepInEx.Configuration.ConfigEntry<uint> TierOnePrice { get; set; }
         public static BepInEx.Configuration.ConfigEntry<uint> TierTwoPrice { get; set; }
@@ -64,10 +61,6 @@
             RandomModeEnabled = StartingItemsGUI.Instance.Config.Bind(modConfig, "RandomModeEnabled", true, "Is the 'Random' mode currently enabled.");
 
             ShowAllItems = StartingItemsGUI.Instance.Config.Bind(modConfig, "ShowAllItems", true, "Show all available items in the shop (even ones not yet discovered by the player).");
-
-            // I am so tempted to remove these 'earning modes' and just grant credits to the player when kiling a stage boss. This would then be multiplied by a number, x, depending on how the game has ended.
-            CurrentEarningMode = StartingItemsGUI.Instance.Config.Bind(modConfig, "CurrentEarningMode", Enums.EarningMode.Stages, "The way in which credits are gained.");
-            CurrentShopMode = StartingItemsGUI.Instance.Config.Bind(modConfig, "CurrentShopMode", Enums.ShopMode.EarnedPersistent, "The way in which the player aquires items in the shop.");
 
             var prices = "Prices";
             // Item prices

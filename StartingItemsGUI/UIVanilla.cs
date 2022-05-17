@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using RoR2;
 using System.Collections.Generic;
 
 namespace StartingItemsGUI

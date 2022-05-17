@@ -33,12 +33,14 @@ namespace StartingItemsGUI
             if (startingItem.IsItemIndex)
             {
                 var itemDef = RoR2.ItemCatalog.GetItemDef(startingItem.ItemIndex);
-                return (itemDef.pickupIconSprite != null && itemDef.pickupIconSprite.name != "texNullIcon" && itemDef.tier != ItemTier.NoTier);
+                var validDescription = (Language.GetString(itemDef.descriptionToken) != "") && (Language.GetString(itemDef.descriptionToken).IndexOf('_') == -1);
+                return (itemDef.pickupIconSprite != null) && (itemDef.pickupIconSprite.name != "texNullIcon") && (itemDef.tier != ItemTier.NoTier) && validDescription;
             }
             else if (startingItem.IsEquipmentIndex)
             {
                 var equipmentDef = RoR2.EquipmentCatalog.GetEquipmentDef(startingItem.EquipmentIndex);
-                return (equipmentDef.pickupIconSprite != null && equipmentDef.pickupIconSprite.name != "texNullIcon");
+                var validDescription = (Language.GetString(equipmentDef.descriptionToken) != "") && (Language.GetString(equipmentDef.descriptionToken).IndexOf('_') == -1);
+                return (equipmentDef.pickupIconSprite != null) && (equipmentDef.pickupIconSprite.name != "texNullIcon") && validDescription;
             }
 
             return false;
@@ -133,24 +135,29 @@ namespace StartingItemsGUI
         {
             if (startingItem.IsItemIndex)
             {
-                return ((uint)RoR2.ItemCatalog.GetItemDef(startingItem.ItemIndex).tier);
+                var tier = ((uint)RoR2.ItemCatalog.GetItemDef(startingItem.ItemIndex).tier);
+                if (tier >= 4)
+                {
+                    return 4;
+                }
+                return tier;
             }
             else if (startingItem.IsEquipmentIndex)
             {
                 var equipmentDef = RoR2.EquipmentCatalog.GetEquipmentDef(startingItem.EquipmentIndex);
                 if (equipmentDef.isLunar)
                 {
-                    return 5;
+                    return 4;
                 }
                 else if (equipmentDef.isBoss)
                 {
-                    return 6;
+                    return 5;
                 }
-                return 4;
+                return 5;
             }
             else
             {
-                return 7;
+                return 5;
             }
         }
 
@@ -160,10 +167,10 @@ namespace StartingItemsGUI
             switch(StartingItemsGUI.Instance.CurrentProfile.ShopMode)
             {
                 case Enums.ShopMode.EarnedConsumable:
-                    //DataEarnedConsumable.BuyItem(startingItem, quantity);
+                    DataEarnedConsumable.BuyItem(startingItem, quantity);
                     break;
                 case Enums.ShopMode.EarnedPersistent:
-                    //DataEarnedPersistent.BuyItem(startingItem, quantity);
+                    DataEarnedPersistent.BuyItem(startingItem, quantity);
                     break;
                 case Enums.ShopMode.Free:
                     DataFree.BuyItem(startingItem, quantity);
@@ -188,17 +195,14 @@ namespace StartingItemsGUI
             }
         }
 
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
         public static List<StartingItem> SortItems(List<StartingItem> givenItems)
         {
-            // TODO: Change this.
-            givenItems.Sort((a, b) =>
+            var copy = new List<StartingItem>(givenItems);
+            copy.Sort((a, b) =>
             {
-                return a.ID >= b.ID ? 1 : 0;
+                return Data.GetItemTier(a).CompareTo(Data.GetItemTier(b));
             });
-            return givenItems;
+            return copy;
         }
 
         public static void ToggleBuyMultiplier()

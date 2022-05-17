@@ -46,6 +46,8 @@ namespace StartingItemsGUI
         // In the future, it might be nice adding in a toggle for this at runtime (maybe in debug build only).
         public bool ShowAllItems { get { return ConfigManager.ShowAllItems.Value; } }
 
+        public System.Text.Json.JsonSerializerOptions JsonFactory = new System.Text.Json.JsonSerializerOptions();
+
         List<Coroutine> characterMasterCoroutines = new();
 
         private void SceneLoadSetup()
@@ -61,6 +63,7 @@ namespace StartingItemsGUI
 
             Instance = this;
             Instance.PInfo = Info;
+            Instance.JsonFactory.Converters.Add(new StartingItemsJsonFactory());
             Resources.LoadResources();
             Instance.SetupHooks();
 

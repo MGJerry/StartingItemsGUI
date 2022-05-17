@@ -148,7 +148,7 @@ namespace StartingItemsGUI
                 for (uint loadoutIndex = 0; loadoutIndex < StartingItemsGUI.Instance.CurrentProfile.LoadoutCount; loadoutIndex++)
                 {
                     loadoutImages.Add(new List<Image>());
-                    GameObject button = ButtonCreator.SpawnBlueButton(rootTransform.gameObject, new Vector2(1, 1), new Vector2(UIConfig.blueButtonWidth, UIConfig.blueButtonHeight), $"Profile: {loadoutIndex}", TMPro.TextAlignmentOptions.Center, loadoutImages[(int)loadoutIndex]);
+                    GameObject button = ButtonCreator.SpawnBlueButton(rootTransform.gameObject, new Vector2(1, 1), new Vector2(UIConfig.blueButtonWidth, UIConfig.blueButtonHeight), $"Loadout: {loadoutIndex + 1}", TMPro.TextAlignmentOptions.Center, loadoutImages[(int)loadoutIndex]);
                     button.GetComponent<RectTransform>().localPosition = new Vector3(rootTransform.rect.width - UIConfig.offsetHorizontal - (UIConfig.blueButtonWidth + UIConfig.spacingHorizontal) * (StartingItemsGUI.Instance.CurrentProfile.LoadoutCount - 1 - loadoutIndex), -UIConfig.offsetVertical, 0);
                     var loadout = loadoutIndex;
                     button.GetComponent<RoR2.UI.HGButton>().onClick.AddListener(() => {
@@ -200,7 +200,6 @@ namespace StartingItemsGUI
                 SetMenuTitle();
             });
             backButton.GetComponent<RoR2.UI.HGButton>().Select();
-            //backButton.GetComponent<RoR2.UI.MPEventSystemLocator>().eventSystem.SetSelectedGameObject(backButton);
             shopInterfaces.Add(backButton.transform.parent.gameObject);
 
             GameObject statusButton = ButtonCreator.SpawnBlackButton(rootTransform.gameObject, new Vector2(UIConfig.blackButtonWidth, UIConfig.blackButtonHeight), "Potato", statusTexts);
@@ -290,36 +289,34 @@ namespace StartingItemsGUI
         {
             Log.LogDebug("We are getting store items.");
 
-            var storeItems = new List<StartingItem>
+            var storeItems = new List<StartingItem>();
+            foreach (var itemDef in RoR2.ItemCatalog.allItemDefs)
             {
-                new StartingItem(10)
-            };
+                var startingItem = new StartingItem(itemDef.itemIndex);
+
+                if (Data.UnlockedItem(startingItem) && !storeItems.Contains(startingItem))
+                {
+                    storeItems.Add(startingItem);
+                }
+            }
+
+            foreach (var equipmentDef in RoR2.EquipmentCatalog.equipmentDefs)
+            {
+                var startingItem = new StartingItem(equipmentDef.equipmentIndex);
+
+                if (Data.UnlockedItem(startingItem) && !storeItems.Contains(startingItem))
+                {
+                    storeItems.Add(startingItem);
+                }
+            }
 
             Log.LogDebug($"Total items in store: {storeItems.Count}");
 
-            return storeItems;
+            Log.LogDebug("Sorting items.");
 
-            //foreach(var itemDef in RoR2.ItemCatalog.allItemDefs)
-            //{
-            //    var startingItem = new StartingItem(itemDef.itemIndex);
+            var sortedItems = Data.SortItems(storeItems);
 
-            //    if (Data.UnlockedItem(startingItem) && !storeItems.Contains(startingItem))
-            //    {
-            //        storeItems.Add(startingItem);
-            //    }
-            //}
-
-            //foreach (var equipmentDef in RoR2.EquipmentCatalog.equipmentDefs)
-            //{
-            //    var startingItem = new StartingItem(equipmentDef.equipmentIndex);
-
-            //    if (Data.UnlockedItem(startingItem) && !storeItems.Contains(startingItem))
-            //    {
-            //        storeItems.Add(startingItem);
-            //    }
-            //}
-
-            //return storeItems;
+            return sortedItems;
         }
 
         static void DrawInfoPanel() {
@@ -423,10 +420,6 @@ namespace StartingItemsGUI
             modeButtons[(int)StartingItemsGUI.Instance.CurrentProfile.ShopMode].Select();
         }
 
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
         static void ClearShopInterfaces() {
             foreach (GameObject gameObject in shopInterfaces) {
                 Destroy(gameObject);
@@ -455,11 +448,11 @@ namespace StartingItemsGUI
 
             if (StartingItemsGUI.Instance.ModEnabled)
             {
-                //statusTexts[0].faceColor = UIConfig.enabledColor;
                 statusTexts[0].color = UIConfig.enabledColor;
                 statusTexts[0].text = "Enabled";
-            } else {
-                //statusTexts[0].faceColor = UIConfig.disabledColor;
+            }
+            else
+            {
                 statusTexts[0].color = UIConfig.disabledColor;
                 statusTexts[0].text = "Disabled";
             }
@@ -476,11 +469,6 @@ namespace StartingItemsGUI
                 UIDrawerFree.Refresh();
             }
         }
-
-
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 
         static public void SetMenuStartingItems() {
             UIVanilla.menuController.SetDesiredMenuScreen(startingItems);

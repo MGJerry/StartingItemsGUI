@@ -4,44 +4,39 @@
     {
         public override bool CanConvert(System.Type typeToConvert)
         {
-            return typeToConvert.GetType() == typeof(System.Collections.Generic.Dictionary<StartingItem, uint>);
+            Log.LogDebug($"Checking if we can convert: {typeToConvert}");
+            return typeToConvert == typeof(System.Collections.Generic.Dictionary<StartingItem, System.UInt32>);
         }
 
         public override System.Text.Json.Serialization.JsonConverter CreateConverter(System.Type type, System.Text.Json.JsonSerializerOptions options)
         {
-            System.Type keyType = typeof(StartingItem);
-            System.Type valueType = typeof(System.UInt32);
+            Log.LogDebug($"Creating converter for type: {type}");
+            Log.LogDebug($"Count: {type.GetGenericArguments().Length}");
 
-            return (System.Text.Json.Serialization.JsonConverter)System.Activator.CreateInstance(
-                typeof(DictionaryEnumConverterInner<,>).MakeGenericType(
-                    new System.Type[] { keyType, valueType }),
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public,
-                binder: null,
-                args: new object[] { options },
-                culture: null)!;
+            var keyType = type.GetGenericArguments()[0];
+            Log.LogDebug($"Key type: {keyType}");
+            var valueType = type.GetGenericArguments()[1];
+            Log.LogDebug($"Value type: {valueType}");         
+
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public;
+            var activatorInstance = System.Activator.CreateInstance(typeof(DictionaryConverterInner<,>).MakeGenericType(new System.Type[] { keyType, valueType }), flags, binder: null, args: new object[] { options }, culture: null)!;
+            var converter = (System.Text.Json.Serialization.JsonConverter)activatorInstance;
+
+            return converter;
         }
-        private class DictionaryEnumConverterInner<TKey, TValue> :
-            System.Text.Json.Serialization.JsonConverter<System.Collections.Generic.Dictionary<TKey, TValue>> where TKey : StartingItem
+
+        private class DictionaryConverterInner<TKey, TValue> : System.Text.Json.Serialization.JsonConverter<System.Collections.Generic.Dictionary<TKey, TValue>> where TKey : StartingItem
         {
             private readonly System.Text.Json.Serialization.JsonConverter<TValue> _valueConverter;
-            private readonly System.Type _keyType;
-            private readonly System.Type _valueType;
+            private readonly System.Type _valueType = typeof(System.UInt32);
 
-            public DictionaryEnumConverterInner(System.Text.Json.JsonSerializerOptions options)
+            public DictionaryConverterInner(System.Text.Json.JsonSerializerOptions options)
             {
                 // For performance, use the existing converter if available.
-                _valueConverter = (System.Text.Json.Serialization.JsonConverter<TValue>)options
-                    .GetConverter(typeof(TValue));
-
-                // Cache the key and value types.
-                _keyType = typeof(TKey);
-                _valueType = typeof(TValue);
+                _valueConverter = (System.Text.Json.Serialization.JsonConverter<TValue>)options.GetConverter(typeof(TValue));
             }
 
-            public override System.Collections.Generic.Dictionary<TKey, TValue> Read(
-                ref System.Text.Json.Utf8JsonReader reader,
-                System.Type typeToConvert,
-                System.Text.Json.JsonSerializerOptions options)
+            public override System.Collections.Generic.Dictionary<TKey, TValue> Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
             {
                 if (reader.TokenType != System.Text.Json.JsonTokenType.StartObject)
                 {
@@ -63,7 +58,9 @@
                         throw new System.Text.Json.JsonException();
                     }
 
-                    var startingItem = new StartingItem(reader.GetString());
+                    string propertyName = reader.GetString();
+                    Log.LogDebug($"We have property name: {propertyName}");
+                    var startingItem = new StartingItem(propertyName);
 
                     // Get the value.
                     TValue value;
@@ -84,10 +81,7 @@
                 throw new System.Text.Json.JsonException();
             }
 
-            public override void Write(
-                System.Text.Json.Utf8JsonWriter writer,
-                System.Collections.Generic.Dictionary<TKey, TValue> dictionary,
-                System.Text.Json.JsonSerializerOptions options)
+            public override void Write(System.Text.Json.Utf8JsonWriter writer, System.Collections.Generic.Dictionary<TKey, TValue> dictionary, System.Text.Json.JsonSerializerOptions options)
             {
                 writer.WriteStartObject();
 

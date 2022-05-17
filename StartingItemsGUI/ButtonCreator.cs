@@ -17,7 +17,7 @@ namespace StartingItemsGUI
 
             var button = ElementCreator.SpawnButtonSize(parent, Resources.panelTextures[0], colourBlock, givenPivot, givenSize, isFallback);
             ElementCreator.SpawnImageOffset(images, button, Resources.panelTextures[7], new(1, 1, 1, 1), new(0.5f, 0.5f), new Vector2(-6, -6), new(6, 6));
-            images[images.Count - 1].gameObject.SetActive(false);
+            images[^1].gameObject.SetActive(false);
             ElementCreator.SpawnImageOffset(new List<Image>(), button, Resources.panelTextures[1], new(1, 1, 1, 0.286f), new(0.5f, 0.5f), new(0, 0), new(0, 0));
             Image highlightImage = ElementCreator.SpawnImageOffset(new(), button, Resources.panelTextures[2], new(1, 1, 1, 1), new(0.5f, 0.5f), new(-4, -12), new(12, 4));
             button.GetComponent<RoR2.UI.HGButton>().imageOnHover = highlightImage;
@@ -95,12 +95,12 @@ namespace StartingItemsGUI
             ElementCreator.SpawnImageOffset(images[startingItem], scaler, itemImage, new(1, 1, 1), new(0, 1), new(UIConfig.itemPaddingInner, textCount * UIConfig.itemTextHeight + UIConfig.itemPaddingInner), new(-UIConfig.itemPaddingInner, -UIConfig.itemPaddingInner));
 
             ElementCreator.SpawnImageOffset(images[startingItem], scaler, Resources.panelTextures[1], new(0.988f, 1.000f, 0.693f, 0.733f), new(0.5f, 0), new(1, textCount * UIConfig.itemTextHeight + 1), new(-1, -1));
-            ElementCreator.SpawnImageSize(images[startingItem], images[startingItem][images[startingItem].Count - 1].gameObject, Resources.panelTextures[6], new(0.988f, 1.000f, 0.693f, 0.733f),new(0.5f, 0.5f), new(20, 20), new(0, 3, 0));
+            ElementCreator.SpawnImageSize(images[startingItem], images[startingItem][^1].gameObject, Resources.panelTextures[6], new(0.988f, 1.000f, 0.693f, 0.733f),new(0.5f, 0.5f), new(20, 20), new(0, 3, 0));
 
             for (var textIndex = 0; textIndex < textCount; textIndex++)
             {
                 ElementCreator.SpawnTextOffset(texts[startingItem], scaler, new(1, 1, 1), 24, 1, new(UIConfig.itemPaddingInner, textIndex * UIConfig.itemTextHeight + UIConfig.itemPaddingInner), new(-UIConfig.itemPaddingInner, -UIConfig.itemButtonWidth - (textCount - 1 - textIndex) * UIConfig.itemTextHeight - UIConfig.itemPaddingInner));
-                texts[startingItem][texts[startingItem].Count - 1].text = "";
+                texts[startingItem][^1].text = "";
             }
 
             ColorBlock colourBlockB = new();

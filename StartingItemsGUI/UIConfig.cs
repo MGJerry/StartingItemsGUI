@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-
 namespace StartingItemsGUI
 {
     public class UIConfig : MonoBehaviour

@@ -52,7 +52,7 @@
         {
             // Each profile will have it's own config file.
             // This config file will store the loadouts.
-            var profilePath = System.IO.Path.Combine(BepInEx.Paths.ConfigPath, StartingItemsGUI.PluginName, _Profile.fileName);
+            var profilePath = System.IO.Path.Combine(BepInEx.Paths.ConfigPath, StartingItemsGUI.PluginName, $"{_Profile.fileName}.txt");
             _Config = new BepInEx.Configuration.ConfigFile(profilePath, true);
 
             // Profile config
@@ -60,6 +60,8 @@
             _CurrentLoadoutIndex = _Config.Bind("Profile", "CurrentLoadoutIndex", (uint)0, "The index of the currently selected Loadout.");
             _EarningMode = _Config.Bind("Profile", "EarningMode", Enums.EarningMode.Stages, "The current Earning Mode for the profile (how credits are earned)");
             _ShopMode = _Config.Bind("Profile", "ShopMode", Enums.ShopMode.EarnedPersistent, "The current Shop Mode for the profile (how the items are purchased)");
+
+            // Loadouts I think?
         }
 
         /// <summary>

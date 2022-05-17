@@ -1,34 +1,49 @@
 ﻿namespace StartingItemsGUI
 {
-    // This could be serialized in the future I think.
     [System.Serializable]
-    [System.Text.Json.Serialization.JsonConverter(typeof(StartingItemsJsonFactory))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.JsonSerializer))]
     public class StartingItem
     {
         /// <summary>
         /// The offset that let's us differentiate between an Item, or Equipment.
         /// </summary>
-        [field: System.NonSerialized]
+        //[field: System.NonSerialized]
+        [field: System.Text.Json.Serialization.JsonIgnore]
         private const System.UInt32 _OFFSET = 65535;
-        [field: System.NonSerialized]
+
+        //[field: System.NonSerialized]
+        [field: System.Text.Json.Serialization.JsonIgnore]
         private System.UInt32 _ID = 0;
-        [field: System.NonSerialized]
+
+        //[field: System.NonSerialized]
+        [field: System.Text.Json.Serialization.JsonIgnore]
         private bool _isItemIndex = false;
-        [field: System.NonSerialized]
+
+        //[field: System.NonSerialized]
+        [field: System.Text.Json.Serialization.JsonIgnore]
         private bool _isEquipmentIndex = false;
 
-        [property: System.Runtime.Serialization.IgnoreDataMember]
+        //[property: System.Runtime.Serialization.IgnoreDataMember]
+        [property: System.Text.Json.Serialization.JsonIgnore]
         public bool IsItemIndex { get { return _isItemIndex; } }
-        [property: System.Runtime.Serialization.IgnoreDataMember]
+
+        //[property: System.Runtime.Serialization.IgnoreDataMember]
+        [property: System.Text.Json.Serialization.JsonIgnore]
         public bool IsEquipmentIndex { get { return _isEquipmentIndex; } }
 
         // I wonder if there is a better way of doing this :thinking: Hmm...
-        [property: System.Runtime.Serialization.IgnoreDataMember]
+
+        //[property: System.Runtime.Serialization.IgnoreDataMember]
+        [property: System.Text.Json.Serialization.JsonIgnore]
         public RoR2.ItemIndex ItemIndex { get { return (RoR2.ItemIndex)_ID; } }
-        [property: System.Runtime.Serialization.IgnoreDataMember]
+
+        //[property: System.Runtime.Serialization.IgnoreDataMember]
+        [property: System.Text.Json.Serialization.JsonIgnore]
         public RoR2.EquipmentIndex EquipmentIndex { get { return (RoR2.EquipmentIndex)(_ID - _OFFSET); } }
 
-        [property: UnityEngine.SerializeField]
+        //[property: UnityEngine.SerializeField]
+        //[property: System.Runtime.Serialization.DataMember]
+        [property: System.Text.Json.Serialization.JsonInclude]
         public System.UInt32 ID { get { return _ID; } set { _ID = System.UInt32.Parse(value.ToString()); Init(); } }
 
         /// <summary>
@@ -103,6 +118,12 @@
         public override string ToString()
         {
             return _ID.ToString();
+        }
+
+        public static StartingItem Parse(string s)
+        {
+            //var x = s.Split();
+            return new StartingItem(s);// { ItemIndex = (ItemIndex)int.Parse(x[0]), EquipmentIndex = (EquipmentIndex)int.Parse(x[1]) };
         }
     }
 }

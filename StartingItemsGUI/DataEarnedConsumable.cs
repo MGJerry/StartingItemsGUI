@@ -10,9 +10,9 @@ namespace StartingItemsGUI
         {
             bool boughtItem = false;
             uint counter;
-            for (counter = 1; counter <= quantity; counter++)
+            for (counter = 0; counter < quantity; counter++)
             {
-                if (StartingItemsGUI.Instance.CurrentProfile.Credits < (counter * Data.GetStartingItemPrice(startingItem)))
+                if (StartingItemsGUI.Instance.CurrentProfile.Credits < (counter + 1 * Data.GetStartingItemPrice(startingItem)))
                 {
                     break;
                 }
@@ -30,7 +30,7 @@ namespace StartingItemsGUI
         {
             bool soldItem = false;
             uint counter;
-            for (counter = 1; counter <= quantity; counter++)
+            for (counter = 0; counter < quantity; counter++)
             {
                 if (!StartingItemsGUI.Instance.CurrentProfile.GetStartingItems().ContainsKey(startingItem))
                 {
@@ -100,6 +100,7 @@ namespace StartingItemsGUI
             }
         }
 
+        // Let's change this to grant x points on every boss kill, rather than 
         public static void UpdateUserPointsBoss(string givenName)
         {
             if (StartingItemsGUI.Instance.CurrentProfile.EarningMode == Enums.EarningMode.Bosses)

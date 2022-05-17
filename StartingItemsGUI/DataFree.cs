@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace StartingItemsGUI
     {
@@ -16,7 +15,7 @@ namespace StartingItemsGUI
         {
             bool soldItem = false;
             uint counter;
-            for (counter = 1; counter <= quantity; counter++)
+            for (counter = 0; counter < quantity; counter++)
             {
                 if (!StartingItemsGUI.Instance.CurrentProfile.GetStartingItems().ContainsKey(startingItem))
                 {
@@ -27,6 +26,7 @@ namespace StartingItemsGUI
                 {
                     break;
                 }
+
                 soldItem = true;
             }
             if (soldItem)

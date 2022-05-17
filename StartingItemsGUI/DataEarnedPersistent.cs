@@ -12,7 +12,7 @@ namespace StartingItemsGUI
         {
             bool boughtItem = false;
             uint counter;
-            for (counter = 1; counter <= quantity; counter++)
+            for (counter = 0; counter < quantity; counter++)
             {
                 if (StartingItemsGUI.Instance.CurrentProfile.Credits < (counter * Data.GetStartingItemPrice(startingItem)))
                 {
@@ -32,7 +32,7 @@ namespace StartingItemsGUI
         {
             bool soldItem = false;
             uint counter;
-            for (counter = 1; counter <= quantity; counter++)
+            for (counter = 0; counter < quantity; counter++)
             {
                 if (!StartingItemsGUI.Instance.CurrentProfile.GetStartingItems().ContainsKey(startingItem))
                 {
