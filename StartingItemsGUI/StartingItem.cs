@@ -119,11 +119,5 @@
         {
             return _ID.ToString();
         }
-
-        public static StartingItem Parse(string s)
-        {
-            //var x = s.Split();
-            return new StartingItem(s);// { ItemIndex = (ItemIndex)int.Parse(x[0]), EquipmentIndex = (EquipmentIndex)int.Parse(x[1]) };
-        }
     }
 }

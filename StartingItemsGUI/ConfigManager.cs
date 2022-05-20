@@ -10,7 +10,6 @@
         public static BepInEx.Configuration.ConfigEntry<bool> EarnedConsumableModeEnabled { get; set; }
         public static BepInEx.Configuration.ConfigEntry<bool> EarnedPersistentModeEnabled { get; set; }
         public static BepInEx.Configuration.ConfigEntry<bool> FreeModeEnabled { get; set; }
-        public static BepInEx.Configuration.ConfigEntry<bool> RandomModeEnabled { get; set; }
 
         public static BepInEx.Configuration.ConfigEntry<bool> ShowAllItems { get; set; }
 
@@ -58,7 +57,6 @@
             EarnedConsumableModeEnabled = StartingItemsGUI.Instance.Config.Bind(modConfig, "EarnedConsumableModeEnabled", true, "Is the 'Earned Consumable' mode currently enabled.");
             EarnedPersistentModeEnabled = StartingItemsGUI.Instance.Config.Bind(modConfig, "EarnedPersistentModeEnabled", true, "Is the 'Earned Persistent' mode currently enabled.");
             FreeModeEnabled = StartingItemsGUI.Instance.Config.Bind(modConfig, "FreeModeEnabled", true, "Is the 'Free' mode currently enabled.");
-            RandomModeEnabled = StartingItemsGUI.Instance.Config.Bind(modConfig, "RandomModeEnabled", true, "Is the 'Random' mode currently enabled.");
 
             ShowAllItems = StartingItemsGUI.Instance.Config.Bind(modConfig, "ShowAllItems", true, "Show all available items in the shop (even ones not yet discovered by the player).");
 

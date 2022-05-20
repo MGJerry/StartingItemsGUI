@@ -46,8 +46,6 @@ namespace StartingItemsGUI
                 UIDrawerEarnedConsumable.DrawUI();
             } else if (StartingItemsGUI.Instance.CurrentProfile.ShopMode == Enums.ShopMode.EarnedPersistent) {
                 UIDrawerEarnedPersistent.DrawUI();
-            } else if (StartingItemsGUI.Instance.CurrentProfile.ShopMode == Enums.ShopMode.Random) {
-                UIDrawerRandom.DrawUI();
             }
             Refresh();
         }
@@ -143,19 +141,16 @@ namespace StartingItemsGUI
                 }
             }
 
-            if (StartingItemsGUI.Instance.CurrentProfile.ShopMode != Enums.ShopMode.Random)
+            for (uint loadoutIndex = 0; loadoutIndex < StartingItemsGUI.Instance.CurrentProfile.LoadoutCount; loadoutIndex++)
             {
-                for (uint loadoutIndex = 0; loadoutIndex < StartingItemsGUI.Instance.CurrentProfile.LoadoutCount; loadoutIndex++)
-                {
-                    loadoutImages.Add(new List<Image>());
-                    GameObject button = ButtonCreator.SpawnBlueButton(rootTransform.gameObject, new Vector2(1, 1), new Vector2(UIConfig.blueButtonWidth, UIConfig.blueButtonHeight), $"Loadout: {loadoutIndex + 1}", TMPro.TextAlignmentOptions.Center, loadoutImages[(int)loadoutIndex]);
-                    button.GetComponent<RectTransform>().localPosition = new Vector3(rootTransform.rect.width - UIConfig.offsetHorizontal - (UIConfig.blueButtonWidth + UIConfig.spacingHorizontal) * (StartingItemsGUI.Instance.CurrentProfile.LoadoutCount - 1 - loadoutIndex), -UIConfig.offsetVertical, 0);
-                    var loadout = loadoutIndex;
-                    button.GetComponent<RoR2.UI.HGButton>().onClick.AddListener(() => {
-                        StartingItemsGUI.Instance.CurrentProfile.CurrentLoadoutIndex = loadout;
-                    });
-                    shopInterfaces.Add(button);
-                }
+                loadoutImages.Add(new List<Image>());
+                GameObject button = ButtonCreator.SpawnBlueButton(rootTransform.gameObject, new Vector2(1, 1), new Vector2(UIConfig.blueButtonWidth, UIConfig.blueButtonHeight), $"Loadout: {loadoutIndex + 1}", TMPro.TextAlignmentOptions.Center, loadoutImages[(int)loadoutIndex]);
+                button.GetComponent<RectTransform>().localPosition = new Vector3(rootTransform.rect.width - UIConfig.offsetHorizontal - (UIConfig.blueButtonWidth + UIConfig.spacingHorizontal) * (StartingItemsGUI.Instance.CurrentProfile.LoadoutCount - 1 - loadoutIndex), -UIConfig.offsetVertical, 0);
+                var loadout = loadoutIndex;
+                button.GetComponent<RoR2.UI.HGButton>().onClick.AddListener(() => {
+                    StartingItemsGUI.Instance.CurrentProfile.CurrentLoadoutIndex = loadout;
+                });
+                shopInterfaces.Add(button);
             }
         }
 
@@ -164,32 +159,25 @@ namespace StartingItemsGUI
             Vector2 pivot = new();
             pivot.y = 1;
             Vector3 position = new();
-            if (StartingItemsGUI.Instance.CurrentProfile.ShopMode != Enums.ShopMode.Random) {
-                int modesDisabled = 0;
-                foreach (var modeEnabled in Data.ShopModes)
+            int modesDisabled = 0;
+            foreach (var modeEnabled in Data.ShopModes)
+            {
+                if (!modeEnabled.Value)
                 {
-                    if (!modeEnabled.Value)
-                    {
-                        modesDisabled += 1;
-                    }
+                    modesDisabled += 1;
                 }
-                float offset = 0;
-                if (modesDisabled <= 0) {
-                    offset = (Data.ShopModes.Count - StartingItemsGUI.Instance.CurrentProfile.LoadoutCount) * (UIConfig.blueButtonWidth + UIConfig.spacingHorizontal) * 0.5f;
-                }
-                position.x = rootTransform.rect.width / 2f + offset;
-                pivot.x = 0.5f;
-            } else {
-                position.x = rootTransform.rect.width - UIConfig.offsetHorizontal;
-                pivot.x = 1;
             }
+            float offset = 0;
+            if (modesDisabled <= 0)
+            {
+                offset = (Data.ShopModes.Count - StartingItemsGUI.Instance.CurrentProfile.LoadoutCount) * (UIConfig.blueButtonWidth + UIConfig.spacingHorizontal) * 0.5f;
+            }
+            position.x = rootTransform.rect.width / 2f + offset;
+            pivot.x = 0.5f;
             position.y = -UIConfig.offsetVertical;
             ElementCreator.SpawnTextSize(pointsText, rootTransform.gameObject, new Color(1, 1, 1, 1), 40, 0, pivot, new Vector2(400, UIConfig.blueButtonHeight), position);
             pointText = pointsText[0];
             pointText.text = "Credits: 400¢";
-            if (StartingItemsGUI.Instance.CurrentProfile.ShopMode == Enums.ShopMode.Random) {
-                pointText.alignment = TMPro.TextAlignmentOptions.Right;
-            }
             shopInterfaces.Add(pointsText[0].gameObject);
         }
 
@@ -209,16 +197,14 @@ namespace StartingItemsGUI
             });
             shopInterfaces.Add(statusButton.transform.parent.gameObject);
 
-            if (StartingItemsGUI.Instance.CurrentProfile.ShopMode != Enums.ShopMode.Random) {
-                List<TMPro.TextMeshProUGUI> multiplierTexts = new List<TMPro.TextMeshProUGUI>();
-                GameObject multiplierButton = ButtonCreator.SpawnBlackButton(rootTransform.gameObject, new Vector2(UIConfig.blackButtonWidth / 2f, UIConfig.blackButtonHeight), "X " + Data.buyMultiplier.ToString(), multiplierTexts);
-                multiplierButton.transform.parent.GetComponent<RectTransform>().localPosition = new Vector3(rootTransform.rect.width - UIConfig.offsetHorizontal - UIConfig.blackButtonWidth / 2f - UIConfig.blackButtons[(int)StartingItemsGUI.Instance.CurrentProfile.ShopMode] * (UIConfig.spacingHorizontal + UIConfig.blackButtonWidth / 2f), -UIConfig.offsetVertical - UIConfig.blueButtonHeight - UIConfig.spacingVertical - storeHeight - UIConfig.spacingVertical, 0);
-                multiplierButton.GetComponent<RoR2.UI.HGButton>().onClick.AddListener(() => {
-                    Data.ToggleBuyMultiplier();
-                });
-                multiplierText = multiplierTexts[0];
-                shopInterfaces.Add(multiplierButton.transform.parent.gameObject);
-            }
+            List<TMPro.TextMeshProUGUI> multiplierTexts = new List<TMPro.TextMeshProUGUI>();
+            GameObject multiplierButton = ButtonCreator.SpawnBlackButton(rootTransform.gameObject, new Vector2(UIConfig.blackButtonWidth / 2f, UIConfig.blackButtonHeight), "X " + Data.buyMultiplier.ToString(), multiplierTexts);
+            multiplierButton.transform.parent.GetComponent<RectTransform>().localPosition = new Vector3(rootTransform.rect.width - UIConfig.offsetHorizontal - UIConfig.blackButtonWidth / 2f - UIConfig.blackButtons[(int)StartingItemsGUI.Instance.CurrentProfile.ShopMode] * (UIConfig.spacingHorizontal + UIConfig.blackButtonWidth / 2f), -UIConfig.offsetVertical - UIConfig.blueButtonHeight - UIConfig.spacingVertical - storeHeight - UIConfig.spacingVertical, 0);
+            multiplierButton.GetComponent<RoR2.UI.HGButton>().onClick.AddListener(() => {
+                Data.ToggleBuyMultiplier();
+            });
+            multiplierText = multiplierTexts[0];
+            shopInterfaces.Add(multiplierButton.transform.parent.gameObject);
 
             if (UIConfig.blackButtons[(int)StartingItemsGUI.Instance.CurrentProfile.ShopMode] > 0) {
                 GameObject infoButton = ButtonCreator.SpawnBlackButton(UIDrawer.rootTransform.gameObject, new Vector2(UIConfig.blackButtonWidth / 2f, UIConfig.blackButtonHeight), "?", new List<TMPro.TextMeshProUGUI>());
@@ -246,10 +232,6 @@ namespace StartingItemsGUI
             if (StartingItemsGUI.Instance.CurrentProfile.ShopMode == Enums.ShopMode.Free)
             {
                 instructionsText[0].text = instructions[0];
-            }
-            else if (StartingItemsGUI.Instance.CurrentProfile.ShopMode == Enums.ShopMode.Random)
-            {
-                instructionsText[0].text = instructions[4];
             }
             else
             {
@@ -346,13 +328,6 @@ namespace StartingItemsGUI
                 text[0].text += "\nSUBSECTION 45b: REQUSITION";
                 text[0].text += "\n";
                 text[0].text += "\nUES always strives to ensure that all its employees are as equipped as necessary to complete their assigned duties. However, UES has finite resources and must determine in who’s hands those resources can be put to the best use. A thorough analysis of employee aptitude concluded that employees with a close familial relation on the Board of Directors (3b) are most able to use the resources of UES to their fullest capacity. To this end, any such employee is afforded the right to requisition any items or equipment they deem, in their own judgement, to be of a benefit in fulfilling their duties. UES will take aggressive legal action against any employee alleging bias or nepotism in regards to this matter. The employee agrees to waive their right to a lawyer (42a) should they be sued in regards to this matter.";
-            }
-            else if (StartingItemsGUI.Instance.CurrentProfile.ShopMode == Enums.ShopMode.Random)
-            {
-                text[0].text = "UES EMPLOYMENT CONTRACT";
-                text[0].text += "\nSUBSECTION 50a: EQUIPPING";
-                text[0].text += "\n";
-                text[0].text += "\nUES always strives to ensure that all its employees are as equipped as necessary to complete their assigned duties. However, UES has finite resources and must determine in who’s hands those resources can be put to the best use. To this end, a thorough analysis is conducted prior to any deployment to determine which, if any, equipment will give the employee the greatest chance of success. The employee agrees that this analysis its conclusions are infallible and that the manner in which the employee is equipped cannot be the basis for any suit against UES. UES will take aggressive legal action against any employee alleging that equipment is, instead, assigned arbitrarily. The employee agrees to waive their right to a lawyer (42a) should they be sued in regards to this matter.";
             }
             else if (StartingItemsGUI.Instance.CurrentProfile.EarningMode == Enums.EarningMode.Bosses)
             {
@@ -457,9 +432,7 @@ namespace StartingItemsGUI
                 statusTexts[0].text = "Disabled";
             }
 
-            if (StartingItemsGUI.Instance.CurrentProfile.ShopMode != Enums.ShopMode.Random) {
-                multiplierText.text = "X " + Data.buyMultiplier.ToString();
-            }
+            multiplierText.text = "X " + Data.buyMultiplier.ToString();
 
             if (StartingItemsGUI.Instance.CurrentProfile.ShopMode == Enums.ShopMode.EarnedConsumable) {
                 UIDrawerEarnedConsumable.Refresh();

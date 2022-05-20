@@ -10,16 +10,14 @@ namespace StartingItemsGUI
         {
             { Enums.ShopMode.EarnedConsumable, ConfigManager.EarnedConsumableModeEnabled.Value },
             { Enums.ShopMode.EarnedPersistent, ConfigManager.EarnedPersistentModeEnabled.Value },
-            { Enums.ShopMode.Free, ConfigManager.FreeModeEnabled.Value },
-            { Enums.ShopMode.Random, ConfigManager.RandomModeEnabled.Value }
+            { Enums.ShopMode.Free, ConfigManager.FreeModeEnabled.Value }
         };
 
         public static Dictionary<Enums.ShopMode, string> ShopModeNames = new()
         {
             { Enums.ShopMode.EarnedConsumable, "Earned Consumable" },
             { Enums.ShopMode.EarnedPersistent, "Earned Persistent" },
-            { Enums.ShopMode.Free, "Free" },
-            { Enums.ShopMode.Random, "Random" }
+            { Enums.ShopMode.Free, "Free" }
         };
 
         public static uint buyMultiplier = 1;
@@ -228,7 +226,7 @@ namespace StartingItemsGUI
 
         static void ChangeMenu(Enums.ShopMode oldMode, Enums.ShopMode newMode)
         {
-            if ((UIConfig.storeRows[(int)oldMode] == UIConfig.storeRows[(int)newMode]) && (UIConfig.textCount[(int)oldMode] == UIConfig.textCount[(int)newMode]) && (oldMode != Enums.ShopMode.Random) && (newMode != Enums.ShopMode.Random))
+            if ((UIConfig.storeRows[(int)oldMode] == UIConfig.storeRows[(int)newMode]) && (UIConfig.textCount[(int)oldMode] == UIConfig.textCount[(int)newMode]))
             {
                 UIDrawer.Refresh();
             }

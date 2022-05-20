@@ -19,12 +19,18 @@
         /// Keep in mind: Each StartingItemsGUI.Profile will have it's own config file inside of the BepInEx/configs/StartingItemsGUI folder.
         /// </summary>
         private BepInEx.Configuration.ConfigFile _Config = null;
-        private BepInEx.Configuration.ConfigEntry<uint> _Credits { get; set; }
         private BepInEx.Configuration.ConfigEntry<uint> _CurrentLoadoutIndex { get; set; }
         private BepInEx.Configuration.ConfigEntry<Enums.EarningMode> _EarningMode { get; set; }
         private BepInEx.Configuration.ConfigEntry<Enums.ShopMode> _ShopMode { get; set; }
 
-        public uint Credits { get { return _Credits.Value; } }
+
+        private BepInEx.Configuration.ConfigEntry<uint> _EarnedPersistentTotalCredits { get; set; }
+        private BepInEx.Configuration.ConfigEntry<uint> _EarnedPersistentCurrentCredits { get; set; }
+        private BepInEx.Configuration.ConfigEntry<uint> _EarnedConsumableTotalCredits { get; set; }
+        private BepInEx.Configuration.ConfigEntry<uint> _EarnedConsumableCurrentCredits { get; set; }
+
+
+        public uint Credits { get { return GetCurrentModeCredits(); } }
         public Enums.ShopMode ShopMode { get { return _ShopMode.Value; } set { _ShopMode.Value = value; } }
         public Enums.EarningMode EarningMode { get { return _EarningMode.Value; } set { _EarningMode.Value = value; } }
         public uint LoadoutCount { get { return (uint)_Loadouts.Length; } }
@@ -48,6 +54,12 @@
             }
         }
 
+        private uint GetCurrentModeCredits()
+        {
+
+            return 0;
+        }
+
         private void InitConfig()
         {
             // Each profile will have it's own config file.
@@ -56,12 +68,17 @@
             _Config = new BepInEx.Configuration.ConfigFile(profilePath, true);
 
             // Profile config
-            _Credits = _Config.Bind("Profile", "Credits", (uint)0, "The current amount of Credits this profile has.");
+            //_Credits = _Config.Bind("Profile", "Credits", (uint)0, "The current amount of Credits this profile has.");
             _CurrentLoadoutIndex = _Config.Bind("Profile", "CurrentLoadoutIndex", (uint)0, "The index of the currently selected Loadout.");
             _EarningMode = _Config.Bind("Profile", "EarningMode", Enums.EarningMode.Stages, "The current Earning Mode for the profile (how credits are earned)");
             _ShopMode = _Config.Bind("Profile", "ShopMode", Enums.ShopMode.EarnedPersistent, "The current Shop Mode for the profile (how the items are purchased)");
 
-            // Loadouts I think?
+            // Mode credits
+            _EarnedPersistentTotalCredits = _Config.Bind("Profile", $"{Data.ShopModeNames[Enums.ShopMode.EarnedPersistent]}.TotalCredits", (uint)0, "The total amount of credits the 'Earned Persistent' shop mode has.");
+            _EarnedPersistentCurrentCredits = _Config.Bind("Profile", $"{Data.ShopModeNames[Enums.ShopMode.EarnedPersistent]}.CurrentCredits", (uint)0, "The current amount of credits the 'Earned Persistent' shop mode has.");
+
+            _EarnedConsumableTotalCredits = _Config.Bind("Profile", $"{Data.ShopModeNames[Enums.ShopMode.EarnedConsumable]}.TotalCredits", (uint)0, "The total amount of credits the 'Earned Consumable' shop mode has.");
+            _EarnedConsumableCurrentCredits = _Config.Bind("Profile", $"{Data.ShopModeNames[Enums.ShopMode.EarnedConsumable]}.CurrentCredits", (uint)0, "The current amount of credits the 'Earned Consumable' shop mode has.");
         }
 
         /// <summary>
@@ -104,6 +121,12 @@
         /// <param name="points">How many credits to add</param>
         public void AddCredits(uint credits)
         {
+            switch (ShopMode)
+            {
+                case Enums.ShopMode.EarnedPersistent:
+                    _EarnedPersistentCurrentCredits.Value += credits;
+                    break;
+            }
             _Credits.Value += credits;
         }
 

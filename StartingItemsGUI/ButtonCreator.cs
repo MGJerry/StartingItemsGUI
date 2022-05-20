@@ -110,15 +110,6 @@ namespace StartingItemsGUI
             colourBlockB.normalColor = new(1, 1, 1, 1);
             colourBlockB.pressedColor = new(0.8f, 0.8f, 0.8f, 1);
 
-            /*
-            GameObject highlight = ElementCreator.SpawnButtonOffset(item, Resources.resources.panelTextures[5], colourBlockB);
-            highlight.GetComponent<RoR2.UI.HGButton>().showImageOnHover = false;
-            RectTransform highlightTransform = highlight.GetComponent<RectTransform>();
-            highlightTransform.offsetMin = new Vector2(-5, -5);
-            highlightTransform.offsetMax = new Vector2(5, 5);
-            item.GetComponent<RoR2.UI.HGButton>().imageOnHover = highlight.GetComponent<Image>();
-            */
-
             var highlight = ElementCreator.SpawnImageOffset(new(), scaler, Resources.panelTextures[5], new(1, 1, 1, 1), new(0.5f, 0.5f), new(-5, -5), new(5, 5));
             item.GetComponent<RoR2.UI.HGButton>().imageOnHover = highlight.GetComponent<Image>();
 

@@ -83,21 +83,18 @@ namespace StartingItemsGUI
             {
                 var startingItems = StartingItemsGUI.Instance.CurrentProfile.GetStartingItems();
 
-                if (StartingItemsGUI.Instance.CurrentProfile.ShopMode != Enums.ShopMode.Random)
+                foreach (var startingItem in startingItems)
                 {
-                    foreach (var startingItem in startingItems)
+                    var itemPurchased = new ItemPurchased
                     {
-                        var itemPurchased = new ItemPurchased
-                        {
-                            _itemID = startingItem.Key.ID,
-                            _itemCount = startingItem.Value,
-                            _connectionID = networkUser.netId.Value
-                        };
-                        itemPurchased.Send(R2API.Networking.NetworkDestination.Server);
-                    }
-                    SpawnItems spawnItems = new(){ _mode = StartingItemsGUI.Instance.CurrentProfile.ShopMode, _connectionID = networkUser.netId.Value };
-                    spawnItems.Send(R2API.Networking.NetworkDestination.Server);
+                        _itemID = startingItem.Key.ID,
+                        _itemCount = startingItem.Value,
+                        _connectionID = networkUser.netId.Value
+                    };
+                    itemPurchased.Send(R2API.Networking.NetworkDestination.Server);
                 }
+                SpawnItems spawnItems = new() { _mode = StartingItemsGUI.Instance.CurrentProfile.ShopMode, _connectionID = networkUser.netId.Value };
+                spawnItems.Send(R2API.Networking.NetworkDestination.Server);
             }
         }
 
