@@ -27,7 +27,7 @@ namespace StartingItemsGUI
     {
         public const string PluginAuthor = "szymonj99";
         public const string PluginName = "StartingItemsGUI";
-        public const string PluginVersion = "0.0.1";
+        public const string PluginVersion = "2.0.0";
         public const string PluginGUID = PluginAuthor + "." + PluginName;
 
         public BepInEx.PluginInfo PInfo { get; protected set; } = null;
